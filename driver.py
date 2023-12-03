@@ -1,15 +1,20 @@
 import numpy as np
 import openmdao.api as om
 import dymos as dm
-from convex_functions import LanderODE
+from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
+
+from lander_classes import LanderODE
 import matplotlib.pyplot as plt
+#import build_pyoptsparse
+#import pyoptsparse
 
 if __name__ == '__main__':
     """build and run the problem """
 
     # Instantiate the problem, add the driver, and allow it to use coloring
     p = om.Problem(model=om.Group())
-    p.driver = om.pyOptSparseDriver()
+    #p.driver = om.pyOptSparseDriver() #cursed
+    p.driver = ScipyOptimizeDriver()
     p.driver.declare_coloring()
     p.driver.options['optimizer'] = 'SLSQP'
 
@@ -24,17 +29,20 @@ if __name__ == '__main__':
                      rate_source='rdot', lower=0, ref0=2000, ref=10)
     phase0.add_state('m', fix_initial=True, fix_final=True, units='kg',
                      rate_source='mdot', lower=0, ref0=2000, ref=1000)
+    phase0.add_state("obj3", fix_initial=False, fix_final=False)
     # phase0.add_state('rdot', fix_initial=True, fix_final=True, units='m/s',
     #                  rate_source='rddot', lower=0, ref0=2500, ref=25000)
     phase0.add_control('Tc', units='N', opt=True, lower=4800, upper=19200, )
     #phase0.add_control('beta', units='rad', opt=True, lower=-89 * np.pi / 180, upper=1 * np.pi / 180, )
 
+    # Add Constraints
     # phase0.add_path_constraint('q', lower=0, upper=70, ref=70)
     # phase0.add_timeseries_output('q', shape=(1,))
 
-    phase0.add_objective('tf', loc='final', ref=-0.01)
-    phase0.add_objective('Tc', loc='final', ref=-0.01)
-    phase0.add_objective('Gamma', loc='final', ref=-0.01)
+    # Add Objective
+    phase0.add_objective('obj3', loc='final')
+    # phase0.add_objective('Tc', loc='final', ref=-0.01)
+    # phase0.add_objective('Gamma', loc='final', ref=-0.01)
     # phase0.add_objective('q', loc='final', ref=-0.01)
 
     p.setup(check=True)

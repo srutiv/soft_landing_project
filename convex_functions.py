@@ -3,9 +3,53 @@ import math
 import scipy
 from matplotlib import pyplot as plt
 
+def plot_trajectory(time, x):
+    fig1, axs1 = plt.subplots(3, 1, figsize=(8, 10))
+    axs1[0].plot(time, x[:, 0], label='x')
+    axs1[0].set_ylabel('x')
     axs1[0].set_title('Figure 1: x, y, z vs Time')
+    axs1[0].grid()
+    axs1[1].plot(time, x[:, 1], label='y')
+    axs1[1].set_ylabel('y')
+    axs1[1].grid()
+    axs1[2].plot(time, x[:, 2], label='z')
+    axs1[2].set_ylabel('z')
+    axs1[2].set_xlabel('Time')
+    axs1[2].grid()
 
-def rdot_func():
+    # Create Figure 2: xdot, ydot, zdot vs time
+    fig2, axs2 = plt.subplots(3, 1, figsize=(8, 10))
+    axs2[0].plot(time, x[:, 3], label='xdot')
+    axs2[0].set_ylabel('xdot')
+    axs2[0].set_title('Figure 2: xdot, ydot, zdot vs Time')
+    axs2[0].grid()
+    axs2[1].plot(time, x[:, 4], label='ydot')
+    axs2[1].set_ylabel('ydot')
+    axs2[1].grid()
+    axs2[2].plot(time, x[:, 5], label='zdot')
+    axs2[2].set_ylabel('zdot')
+    axs2[2].set_xlabel('Time')
+    axs2[2].grid()
+
+    plt.tight_layout()
+    plt.show()
+    plt.close()
+
+def S_func(omega):
+    # eqn2
+    S = np.array([[0, -omega[2], omega[1]], [omega[2], 0, -omega[0]], [-omega[1], omega[0], 0]])
+    return S
+
+
+def A_func(omega):
+    A = np.zeros((6,6))
+    A[0:3, 3:6] = np.eye(3)
+    A[3:6, 0:3] = -S_func(omega) ** 2
+    A[3:6, 3:6] = -2 * S_func(omega)
+    #A = np.array([[np.zeros((3, 3)), np.eye(3)], [-S_func(omega) ** 2, -2 * S_func(omega)]])  # 6x6
+    return A
+
+def rdot_func(z, t, Tc, params):
     """
     dynamics function: lander modeled as a lumped parameter mass with Tc for control
     omega = np.ones((3,)) #vector of planets constant angular velocity
