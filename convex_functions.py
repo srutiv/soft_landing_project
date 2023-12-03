@@ -3,7 +3,6 @@ import math
 import scipy
 from matplotlib import pyplot as plt
 
-
 def plot_trajectory(time, x):
     fig1, axs1 = plt.subplots(3, 1, figsize=(8, 10))
     axs1[0].plot(time, x[:, 0], label='x')
