@@ -4,6 +4,7 @@ from openmdao.api import Group
 from openmdao.api import ExplicitComponent, Problem
 from convex_functions import A_func, S_func
 
+############################DONT THINK THIS IS NEEDED ********************************************************"""
 class LanderODE(Group):
 
     def initialize(self):
@@ -15,14 +16,14 @@ class LanderODE(Group):
                            promotes_inputs=['r', 'rdot', 'm', 'Tc', 'omega', ],
                            promotes_outputs=['rddot', 'mdot', ])
 
+################################USE THIS INSTEAD OR PUT THIS IN THE LANDERODE CLASS??????????"""
 class FlightDynamics(ExplicitComponent):
     """
     Defines the flight dynamics for the shuttle reentry problem.
 
     References
     ----------
-    .. [1] Betts, John T., Practical Methods for Optimal Control and Estimation Using Nonlinear
-           Programming, p. 247, 2010.
+    .. [1] REPLACE WITH PROPER CITATION
     """
 
     def initialize(self):
@@ -30,23 +31,36 @@ class FlightDynamics(ExplicitComponent):
 
     def setup(self):
         nn = self.options['num_nodes']
-
-        self.add_input('r', val=np.ones(nn), desc='position', units='m')
-        self.add_input('rdot', val=np.ones(nn), desc='velocity', units='m/s')
+        ######################## MIGHT HAVE TO SPLIT UP R AND RDOT #################################
+        self.add_input('x', val=np.ones(nn), desc='x position', units='m')
+        self.add_input('y', val=np.ones(nn), desc='y position', units='m')
+        self.add_input('z', val=np.ones(nn), desc='z position', units='m')
+        self.add_input('v_x', val=np.ones(nn), desc='x velocity', units='m/s')
+        self.add_input('v_y', val=np.ones(nn), desc='y velocity', units='m/s')
+        self.add_input('v_z', val=np.ones(nn), desc='z velocity', units='m/s')
         self.add_input('m', val=np.ones(nn), desc='mass', units='kg')
         self.add_input('Tc', val=np.ones(nn), desc='Thrust control', units='N')
-        self.add_input('omega', val=np.ones(nn), desc='Thrust control', units='N')
+        self.add_input('Gamma', val=np.ones(nn), desc='Thrust control Bound', units='N') #
 
-        #self.add_output('r', val=np.ones(nn), desc='position', units='m')
-        self.add_output('rddot', val=np.ones(nn), desc='', units='m/s')
-        #self.add_output('tf_dot', val=np.ones(nn), desc='', units='s')
-        #self.add_output('Tc_dot', val=np.ones(nn), desc='', units='N')
-        self.add_output('mdot', val=np.ones(nn), desc='mdot', units='kg/s')
-        self.add_output('obj3', val=np.ones(nn), desc='obj3')
-        #self.add_output('Gamma_dot', val=np.ones(nn), desc='norm Tc optimal', units='N')
+        ######################## THE TIME DERIVATIVES ###############
+        self.add_output('xdot', val=np.ones(nn), desc='x position rate', units='m/s')
+        self.add_output('ydot', val=np.ones(nn), desc='y position rate', units='m/s')
+        self.add_output('zdot', val=np.ones(nn), desc='z position rate', units='m/s')
+        self.add_output('v_xdot', val=np.ones(nn), desc='x velocity rate', units='m/s**2')
+        self.add_output('v_ydot', val=np.ones(nn), desc='y velocity rate', units='m/s**2')
+        self.add_output('v_zdot', val=np.ones(nn), desc='z velocity rate', units='m/s**2')
+        self.add_output('mDot', val=np.ones(nn), desc='mass change rate', units='kg/s')
+        
+        ####################### Time derivatives dont know if we need these? ####################################
+        self.add_output('Tc', val=np.ones(nn), desc='Tc optimal', units='N')
+        self.add_output('Gamma', val=np.ones(nn), desc='norm Tc optimal', units='N')
+        self.add_output('q', val=np.ones(nn), desc='final landing coordinates', units='m') #### MAYBE SHOULD BE A PARAMETER
+        
+        ######################### May need to add omega as a parameter ############################ actually just put it in computer????
 
         partial_range = np.arange(nn, dtype=int)
 
+        ################## I DONT THINK THESE SHOULD BE WITH RESPECT TO T
         self.declare_partials('rdot', 't', rows=partial_range, cols=partial_range)
         self.declare_partials('rddot', 't', rows=partial_range, cols=partial_range)
 
