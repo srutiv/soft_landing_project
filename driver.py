@@ -29,7 +29,7 @@ if __name__ == '__main__':
                      rate_source='rdot', lower=0, ref0=2000, ref=10)
     phase0.add_state('m', fix_initial=True, fix_final=True, units='kg',
                      rate_source='mdot', lower=0, ref0=2000, ref=1000)
-    phase0.add_state("obj3", fix_initial=False, fix_final=False)
+    phase0.add_state("obj3", fix_initial=False, fix_final=False, rate_source='obj3dot')
     # phase0.add_state('rdot', fix_initial=True, fix_final=True, units='m/s',
     #                  rate_source='rddot', lower=0, ref0=2500, ref=25000)
     phase0.add_control('Tc', units='N', opt=True, lower=4800, upper=19200, )

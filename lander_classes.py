@@ -12,10 +12,8 @@ class LanderODE(Group):
     def setup(self):
         nn = self.options['num_nodes']
         self.add_subsystem('eom', subsys=FlightDynamics(num_nodes=nn),
-                           promotes_inputs=['beta', 'gamma', 'h', 'psi', 'theta', 'v', 'lift',
-                                            'drag'],
-                           promotes_outputs=['hdot', 'gammadot', 'phidot', 'psidot', 'thetadot',
-                                             'vdot'])
+                           promotes_inputs=['r', 'rdot', 'm', 'Tc', 'omega', ],
+                           promotes_outputs=['rddot', 'mdot', ])
 
 class FlightDynamics(ExplicitComponent):
     """
@@ -39,12 +37,13 @@ class FlightDynamics(ExplicitComponent):
         self.add_input('Tc', val=np.ones(nn), desc='Thrust control', units='N')
         self.add_input('omega', val=np.ones(nn), desc='Thrust control', units='N')
 
-        self.add_output('r', val=np.ones(nn), desc='position', units='m')
-        self.add_output('rdot', val=np.ones(nn), desc='velocity', units='m/s')
-        self.add_output('tf', val=np.ones(nn), desc='tf optimal', units='s')
-        self.add_output('Tc', val=np.ones(nn), desc='Tc optimal', units='N')
-        self.add_output('Gamma', val=np.ones(nn), desc='norm Tc optimal', units='N')
-        self.add_output('q', val=np.ones(nn), desc='final landing coordinates', units='m')
+        #self.add_output('r', val=np.ones(nn), desc='position', units='m')
+        self.add_output('rddot', val=np.ones(nn), desc='', units='m/s')
+        #self.add_output('tf_dot', val=np.ones(nn), desc='', units='s')
+        #self.add_output('Tc_dot', val=np.ones(nn), desc='', units='N')
+        self.add_output('mdot', val=np.ones(nn), desc='mdot', units='kg/s')
+        self.add_output('obj3', val=np.ones(nn), desc='obj3')
+        #self.add_output('Gamma_dot', val=np.ones(nn), desc='norm Tc optimal', units='N')
 
         partial_range = np.arange(nn, dtype=int)
 
@@ -61,7 +60,7 @@ class FlightDynamics(ExplicitComponent):
         omega = np.ones((3,)) #vector of planets constant angular velocity
         """
         # unpack inputs
-        r = inputs['r']
+        x = inputs['x']
         rdot = inputs['rdot']
         m = inputs['m']
         Tc = inputs["Tc"]
@@ -72,6 +71,7 @@ class FlightDynamics(ExplicitComponent):
         rho1 = 0.2 * Tmax  # thrust limit for throttle level 20%
         rho2 = 0.8 * Tmax
         alpha = 5e-4,  # s/m
+        q_target = np.array([0, 0, 0]) #target_landing position
 
         x = np.zeros((6,))
         x[0:3] = r
@@ -84,6 +84,11 @@ class FlightDynamics(ExplicitComponent):
         B = np.zeros((6, 3))
         B[3:6, :] = np.eye(3)
 
+        # projection matrix for landing position
+        E = np.array([[0, 1, 0], [0, 0, 1]])
+
+        obj3 = np.linalg.norm(np.dot(E, r) - q_target)
+
         xdot = np.dot(A, x) + np.dot(B, g + Tc / m)  # 6x1
         mdot = alpha * np.linalg.norm(Tc)
         zdot = np.append(xdot, mdot)
@@ -91,6 +96,7 @@ class FlightDynamics(ExplicitComponent):
         outputs["rdot"] = xdot[0:3]
         outputs["rddot"] = xdot[3:6]
         outputs["mdot"] = mdot
+        outputs["obj3"] = obj3
 
     # def compute_partials(self, inputs, J):
     #     v = inputs['v']
