@@ -44,7 +44,7 @@ class FlightDynamics(ExplicitComponent):
         self.add_input('T_x', val=np.ones(nn), desc='Thrust control x', units='N')
         self.add_input('T_y', val=np.ones(nn), desc='Thrust control y', units='N')
         self.add_input('T_z', val=np.ones(nn), desc='Thrust control z', units='N')
-        # self.add_input('Gamma', val=np.ones(nn), desc='Thrust control Bound', units='N') #
+        self.add_input('Gamma', val=np.ones(nn), desc='Thrust control Bound', units='N')
 
         # Derivatives of the equatiosn of motions
         self.add_output('xdot', val=np.ones(nn), desc='x position rate', units='m/s')
@@ -90,9 +90,7 @@ class FlightDynamics(ExplicitComponent):
         self.declare_partials('v_zdot', 'T_z', rows=partial_range, cols=partial_range)
         self.declare_partials('v_zdot', 'm', rows=partial_range, cols=partial_range)
         
-        self.declare_partials('mdot', 'T_x', rows=partial_range, cols=partial_range)
-        self.declare_partials('mdot', 'T_y', rows=partial_range, cols=partial_range)
-        self.declare_partials('mdot', 'T_z', rows=partial_range, cols=partial_range)
+        self.declare_partials('mdot', 'Gamma', rows=partial_range, cols=partial_range)
 
     def compute(self, inputs, outputs):
         """
@@ -109,6 +107,7 @@ class FlightDynamics(ExplicitComponent):
         T_y = inputs['T_y']
         T_z = inputs['T_z']
         m = inputs['m']
+        Gamma = input['Gamma']
         
         # Arrange into array for easy computing
         X = np.array([[x],[y],[z],[v_x],[v_y],[v_z]])
@@ -124,7 +123,7 @@ class FlightDynamics(ExplicitComponent):
 
         # Compute Outputs using matrix math
         XDOT = np.dot(A,X) + np.dot(B,(np.add(g,Tc/m)))
-        mdot = -1 * alpha * np.linalg.norm(Tc)
+        mdot = -1 * alpha * Gamma
         
         # Assign Outputs
         outputs["xdot"] = XDOT[0,0]
@@ -147,6 +146,7 @@ class FlightDynamics(ExplicitComponent):
         T_y = inputs['T_y']
         T_z = inputs['T_z']
         m = inputs['m']
+        Gamma = inputs['Gamma']
         
         # Arrange into array for easy computing
         X = np.array([[x],[y],[z],[v_x],[v_y],[v_z]])
@@ -163,7 +163,7 @@ class FlightDynamics(ExplicitComponent):
         pXDOT_pX = A
         pXDOT_pT = B/m
         pXDOT_pm = -(1/m**2) * np.dot(B,Tc)
-        pmdot_pT = -1 * alpha * Tc / np.linalg.norm(Tc)
+        pmdot_pGamma = -1 * alpha
         
         # Assign Partials
         J['xdot', 'v_x'] = pXDOT_pX[0,3]
@@ -193,7 +193,5 @@ class FlightDynamics(ExplicitComponent):
         J['v_zdot', 'T_z'] = pXDOT_pT[5,0]
         J['v_zdot', 'm'] = pXDOT_pm[5,0]
         
-        J['mdot', 'T_x'] = pmdot_pT[0,0]
-        J['mdot', 'T_y'] = pmdot_pT[0,1]
-        J['mdot', 'T_z'] = pmdot_pT[0,2]
+        J['mdot', 'Gamma'] = pmdot_pGamma
         
