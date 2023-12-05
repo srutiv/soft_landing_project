@@ -43,8 +43,11 @@ class FlightDynamics(ExplicitComponent):
         self.add_input('T_y', val=np.ones(nn), desc='Thrust control y', units='N')
         self.add_input('T_z', val=np.ones(nn), desc='Thrust control z', units='N')
         self.add_input('Gamma', val=np.ones(nn), desc='Thrust control Bound', units='N')
+        self.add_input('res7b', val=np.ones(nn), desc='constraint residual 7b', units='kg')
+        self.add_input('res17a', val=np.ones(nn), desc='constraint residual 17a', units='m/s')
+        self.add_input('res19', val=np.ones(nn), desc='constraint residual 19', units='N')
 
-        # Derivatives of the equatiosn of motions
+        # Derivatives of the equations of motions
         self.add_output('xdot', val=np.ones(nn), desc='x position rate', units='m/s')
         self.add_output('ydot', val=np.ones(nn), desc='y position rate', units='m/s')
         self.add_output('zdot', val=np.ones(nn), desc='z position rate', units='m/s')
@@ -106,6 +109,8 @@ class FlightDynamics(ExplicitComponent):
         T_z = inputs['T_z']
         m = inputs['m']
         Gamma = input['Gamma']
+        # res17a = input["res17a"]
+        # res19 = input["res19"]
         
         # Arrange into array for easy computing
         X = np.array([[x],[y],[z],[v_x],[v_y],[v_z]])
@@ -115,13 +120,28 @@ class FlightDynamics(ExplicitComponent):
         alpha = 5e-4,  # s/m
         g = np.array([[-3.71],[0],[0]])
         omega = np.array([2.53e-5,0,6.62e-5])
+        gamma = pi/4 #slide slope angle (0, pi/2)
         A = A_func(omega)  # 6x6
         B = np.zeros((6, 3))
         B[3:6, :] = np.eye(3)
+        E = np.zeros((2,3))
+        E[0,:] = np.array([0, 1, 0])
+        E[1,:] = np.array([0, 0, 1])
+        e1 = np.array([1, 0, 0])  # axial direction
+        n = np.array([1, 0, 0])  # normal direction
+        c = e1/math.tan(gamma) #glide slope direction
 
         # Compute Outputs using matrix math
         XDOT = np.dot(A,X) + np.dot(B,(np.add(g,Tc/m)))
         mdot = -1 * alpha * Gamma
+
+        #upate constraint residuals
+        res5a = Vmax - np.linalg.norm(np.array[v_x, v_y, v_z])
+        res5b = np.linalg.norm(E * r_func(tf) - c.T*(np.array[x, y, z] - r_func(tf))) #HOW DO WE KNOW r_tf???
+        res7b = m - m0 - mf
+        res9a = np.dot(e1, np.array[x, y, z])
+        res17a = A_func(omega) * x_func(tf) + B * (g + Tc / m)
+        res19 = np.dot(n.T, Tc) - math.cos(theta) * Gamma
         
         # Assign Outputs
         outputs["xdot"] = XDOT[0,0]
@@ -132,6 +152,14 @@ class FlightDynamics(ExplicitComponent):
         outputs["v_xdot"] = XDOT[5,0]
         outputs["mdot"] = mdot
         outputs["obj3"] = obj3
+
+        #constraint outputs
+        outputs["res5a"] = res5a
+        outputs["res5b"] = res5b
+        outputs["res7b"] = res7b
+        outputs["res9a"] = res9a
+        outputs["res17a"] = res17a
+        outputs["res19"] = res19
 
     def compute_partials(self, inputs, J):
         # Unpack inputs
