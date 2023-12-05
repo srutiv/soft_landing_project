@@ -94,11 +94,6 @@ class FlightDynamics(ExplicitComponent):
         """
         dynamics function: lander modeled as a lumped parameter mass with Tc for control
         """
-<<<<<<< HEAD
-        # unpack inputs
-        x = inputs['x']
-        rdot = inputs['rdot']
-=======
         # Unpack inputs
         x = inputs['x']
         y = inputs['y']
@@ -109,7 +104,6 @@ class FlightDynamics(ExplicitComponent):
         T_x = inputs['T_x']
         T_y = inputs['T_y']
         T_z = inputs['T_z']
->>>>>>> 3983f74 (Corrected FlightDynamics Component)
         m = inputs['m']
         Gamma = input['Gamma']
         
@@ -119,37 +113,12 @@ class FlightDynamics(ExplicitComponent):
         
         # Constants
         alpha = 5e-4,  # s/m
-<<<<<<< HEAD
-        q_target = np.array([0, 0, 0]) #target_landing position
-
-        x = np.zeros((6,))
-        x[0:3] = r
-        x[3:6] = rdot
-
-        g = np.ones((3,))  # constant gravity vector
-        S = S_func(omega)
-
-=======
         g = np.array([[-3.71],[0],[0]])
         omega = np.array([2.53e-5,0,6.62e-5])
->>>>>>> 3983f74 (Corrected FlightDynamics Component)
         A = A_func(omega)  # 6x6
         B = np.zeros((6, 3))
         B[3:6, :] = np.eye(3)
 
-<<<<<<< HEAD
-        # projection matrix for landing position
-        E = np.array([[0, 1, 0], [0, 0, 1]])
-
-        obj3 = np.linalg.norm(np.dot(E, r) - q_target)
-
-        xdot = np.dot(A, x) + np.dot(B, g + Tc / m)  # 6x1
-        mdot = alpha * np.linalg.norm(Tc)
-        zdot = np.append(xdot, mdot)
-
-        outputs["rdot"] = xdot[0:3]
-        outputs["rddot"] = xdot[3:6]
-=======
         # Compute Outputs using matrix math
         XDOT = np.dot(A,X) + np.dot(B,(np.add(g,Tc/m)))
         mdot = -1 * alpha * Gamma
@@ -161,7 +130,6 @@ class FlightDynamics(ExplicitComponent):
         outputs["v_xdot"] = XDOT[3,0]
         outputs["v_xdot"] = XDOT[4,0]
         outputs["v_xdot"] = XDOT[5,0]
->>>>>>> 3983f74 (Corrected FlightDynamics Component)
         outputs["mdot"] = mdot
         outputs["obj3"] = obj3
 
