@@ -125,6 +125,15 @@ if __name__ == '__main__':
     # phase0.add_control('Tc', units='N', opt=True, lower=min_Tc, upper=max_Tc)
     # phase0.add_parameter('Gamma', units='N', opt=True, lower=min_Gamma, upper=max_Gamma)
 
+    objectives = phase0.get_objectives()
+    print(objectives)
+
+    design_vars = phase0.get_design_vars()
+    print(design_vars)
+
+    constraints = phase0.get_constraints()
+    print(constraints)
+
     p.setup(check=True)
 
     """ INITIAL CONDITIONS OF THE STATES: Must be done after setup 'check' == True """
