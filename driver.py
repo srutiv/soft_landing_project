@@ -3,7 +3,7 @@ import openmdao.api as om
 import dymos as dm
 from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
 
-from lander_classes import LanderODE
+from classes_formulation1 import LanderODE
 import matplotlib.pyplot as plt
 #import build_pyoptsparse
 #import pyoptsparse
@@ -36,13 +36,6 @@ if __name__ == '__main__':
     #phase0.add_control('beta', units='rad', opt=True, lower=-89 * np.pi / 180, upper=1 * np.pi / 180, )
 
     # Add Constraints
-    # for constraining expressions, the derivatives are calculated with complex step not analytic expressions
-    phase0.add_boundary_constraint('res17a') #evaluated as a state w/ dynamics expression
-    phase0.add_boundary_constraint('res17b=-alpha*Gamma', loc="initial", equals=5e-4*0.8*24000) #update with mdot(0)
-    phase0.add_boundary_constraint('Gamma >= np.linalg.norm(Tc)') #res18a
-    phase0.add_boundary_constraint('rho2 >= Gamma') #res18b
-    phase0.add_boundary_constraint('Gamma >= rho1') #res18c
-    phase0.add_boundary_constraint('res19')
     # phase0.add_path_constraint('q', lower=0, upper=70, ref=70)
     # phase0.add_timeseries_output('q', shape=(1,))
 
@@ -53,14 +46,6 @@ if __name__ == '__main__':
     # phase0.add_objective('q', loc='final', ref=-0.01)
 
     p.setup(check=True)
-    objectives = case.get_objectives()
-    print(objectives)
-
-    design_vars = case.get_design_vars()
-    print(design_vars)
-
-    constraints = case.get_constraints()
-    print(constraints)
 
     p.set_val('traj.phase0.t_initial', 0, units='s')
     p.set_val('traj.phase0.t_duration', 75, units='s')
