@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     """ PROBLEM FORMULATION 2: use problem 3 as a constraint for problem 4"""
-    """ BUILD PROBLEM """
 
+    """ BUILD PROBLEM """
     # initialization
     m0 = 2000  # kg
     mf = 300  # kg
@@ -81,6 +81,9 @@ if __name__ == '__main__':
     phase0.add_state('res19', fix_initial=False, rate_source='res19', units='N')  # constraint 19
     phase0.add_state('res20', fix_initial=False, rate_source='res20', units='m')  # constraint 20
 
+    #external control as a design variable
+    #p.model.add_design_var("x_tf_ind", )
+
     """ CONSTRAINTS """
     # Add Constraints
     # for constraining expressions, the derivatives are calculated with complex step not analytic expressions
@@ -124,6 +127,15 @@ if __name__ == '__main__':
     # ADD ERROR_MARGIN HERE
     # phase0.add_control('Tc', units='N', opt=True, lower=min_Tc, upper=max_Tc)
     # phase0.add_parameter('Gamma', units='N', opt=True, lower=min_Gamma, upper=max_Gamma)
+
+    objectives = phase0.get_objectives()
+    print(objectives)
+
+    design_vars = phase0.get_design_vars()
+    print(design_vars)
+
+    constraints = phase0.get_constraints()
+    print(constraints)
 
     p.setup(check=True)
 

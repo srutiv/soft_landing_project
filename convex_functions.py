@@ -73,65 +73,176 @@ def rdot_func(z, t, Tc, params):
 
     return zdot
 
+def discretize_problem(N, tf, params):
+    """
+    1. sets up the time grid, solves for control inputs at each time step
+    2. and propagates the dynamics using those control inputs.
+    """
+    dt = tf / N
 
-def contraints(tf, Tc, Gamma, omega, params):
-    # constraint 5
-    # x in design space, t in range(0, tf) --> trivial
+    # Define the time grid
+    tgrid = np.linspace(0, tf, N + 1)
 
-    # constraint 7
-    # initial mass --> trivial
+    # Initialize an array to store control inputs at each time step
+    Tc_array = np.zeros((N, 3))  # Assuming 3 control inputs
 
-    # constraint 8
-    # intial position and velocity --> trivial
+    # Solve for optimal control inputs at each time step
+    for i in range(N):
+        Tc_i = Tc_array[i]  # Get control input at time step i
 
-    # constraint 9
-    # geometry between final position and velocity --> trivial
+        # Call your optimizer (modify it to work for a specific time step)
+        # Example: You may call scipy.optimize.minimize here for each time step
 
-    # constraint 17
-    xdot = A_func(omega) * x_func(tf) + B * (g + Tc / m)
-    mdot = -params["alpha"] * Gamma
+        # Store the obtained optimal control input for the specific time step
+        Tc_array[i] = obtained_Tc_i  # Replace obtained_Tc_i with the actual result
 
-    # constraint 18
-    res1 = Gamma - np.linalg.norm(Tc)
-    res2 = params["rho2"] - Gamma
-    res3 = Gamma - params["rho1"]
+    # Propagate dynamics using the obtained control inputs
+    z0 = np.append(x0, m0)
+    x_array = np.zeros((N + 1, 6))  # Store states at each time step
+    x_array[0] = x0
 
-    # constraint 19
+    for i in range(N):
+        Tc = Tc_array[i]
+        tspan = [tgrid[i], tgrid[i + 1]]  # Time span for this step
+
+        # Integrate dynamics for this time step
+        z_step = scipy.integrate.odeint(rdot_func, x_array[i], tspan, args=(Tc, params))
+
+        # Store the resulting state for this time step
+        x_array[i + 1] = z_step[-1]
+
+    return tgrid, x_array, Tc_array
+
+def constraints_func(Tc, params):
+
+    """ setup """
     n = np.array([1, 0, 0])  # normal direction
-    res4 = np.dot(n.T, Tc) - math.cos(theta) * Gamma
+    Vmax = params["Vmax"]
+    error_margin = params["error_margin"]
+    Gamma = np.linalg.norm(Tc)
+    q = params["q"]
+    g = np.array([-3.71, 0, 0])  # constant gravity vector
+    E = np.zeros((2, 3))
+    E[0, :] = np.array([0, 1, 0])
+    E[1, :] = np.array([0, 0, 1])
+    e1 = np.array([1, 0, 0])  # axial direction
+    n = np.array([1, 0, 0])  # normal direction
+    gamma = math.pi/4 #glide slope angle
+    theta = math.pi/4 #thrust pointing constraint
+    c = e1 / math.tan(gamma)  # glide slope direction
+    error_margin = 10  # m, upate for pareto-front study
 
-    # constraint 20
-    # second term is the obj function for problem 3
-    # d_star_p3 is final optimal position from problem 3
+    """ residuals of the constraints """
+    #res5 = np.linalg.norm(d_star_p3 - q) - np.linalg.norm(E * r_func(tf) - q)
+    res5a = Vmax - np.linalg.norm(np.array[v_x, v_y, v_z])
+    res5b = np.linalg.norm(E * r_func(tf) - c.T * (np.array[x, y, z] - r_func(tf)))  # HOW DO WE KNOW r_tf???
+    res7b = m - m0 - mf
+    res9a = np.dot(e1, np.array[x, y, z])
+    res9b = np.array([v_x, v_y, v_z])  # constraint: rdot(tf) = 0
+    res17a = A_func(omega) * X + B * (g + Tc / m)
+    res17b = -params["alpha"] * Gamma
+    res18a = Gamma - np.linalg.norm(Tc)
+    res18b = params["rho2"] - Gamma
+    res18c = Gamma - params["rho1"]
+    res19 = np.dot(n.T, Tc) - math.cos(theta) * Gamma
+    res20 = error_margin - np.linalg.norm(E * r_func(tf) - q)
 
-    res5 = np.linalg.norm(d_star_p3 - q) - np.linalg.norm(E * r_func(tf) - q)
+    c = np.array([res5a, res5b, res20]) #test
+    return c
 
-    return
+
+# def problem3(des_vars, params):
+#     """ Problem 3: convex relaxed min landing error problem """
+#     tf = des_vars[0]
+#     Tc = des_vars[1]
+#     Gamma = des_vars[2]
+#
+#     f3 = np.linalg.norm(E * r_func(tf) - q)
+#
+#     # add gradient
+#     g3 = np.zeros(2)
+#
+#     return f3, g3
+
+# def problem4(Tc, params):
+#     """problem 4: convex relaxed min fuel problem"""
+#     tf = params["tf"]
+#
+#     Gamma = np.linalg.norm(Tc)
+#     f4 = np.sum(Gamma[0:tf], axis=0)
+#
+#     return f4
+
+def problem4_discrete(Tc_array, state0, params):
+    """problem 4: convex relaxed min fuel problem; discrete version"""
+    # Calculate the total objective by summing the costs at each time step
+    f4 = 0
+    tf = int(state0[-1])
+    for Tc_i in Tc_array:
+        # Compute the cost at a specific time step using Tc_i
+        Gamma = np.linalg.norm(Tc_i)
+        cost_at_step_i = np.sum(Gamma[0:tf], axis=0)
+        f4 += cost_at_step_i
+    return f4
+
+def constraints_func_discrete(Tc_array, state0, params):
+    """ Discrete constraints at each time step """
+    all_constraints = []
+    omega = np.array([2.53e-5, 0, 6.62e-5])
+    A = A_func(omega)  # 6x6
+    g = np.array([[-3.71], [0], [0]])  # constant gravity vector
+    B = np.zeros((6, 3))
+    B[3:6, :] = np.eye(3)
+    E = np.zeros((2, 3))
+    E[0, :] = np.array([0, 1, 0])
+    E[1, :] = np.array([0, 0, 1])
+
+    for i in range(len(Tc_array)):
+        # Extract variables at the specific time step
+        Tc_i = Tc_array[i]
+        x_i = state0[i]
+        r_i = x_i[0:3]
+        rdot_i = x_i[3:6]
+        # Extract necessary parameters from 'params' dictionary
+        # Vmax = params["Vmax"]
+        # error_margin = params["error_margin"]
+        # mf = params["mf"]
+        # m0 = params["m0"]
+        # omega = params["omega"]
+        # rho1 = params["rho1"]
+        # rho2 = params["rho2"]
+        # alpha = params["alpha"]
+        # g = params["gravity"]
+        alpha = 5e-4,  # s/m
+        q = np.zeros((3,)) #landing target coordinates
+        omega = np.array([2.53e-5, 0, 6.62e-5])
+        gamma = math.pi / 4  # slide slope angle (0, pi/2)
+        m0 = 2000  # kg
+        mf = 300  # kg
+        theta = math.pi/4 #thrust pointing constraint angle
+        Vmax = 100 #m/s physically reasonable max
 
 
-def problem3(des_vars, params):
-    """ Problem 3: convex relaxed min landing error problem """
-    tf = des_vars[0]
-    Tc = des_vars[1]
-    Gamma = des_vars[2]
+        """ Residuals of the constraints at this time step """
+        res5a = Vmax - np.linalg.norm(x_i[3:6])  # x_i[3:6] contains v_x, v_y, v_z
+        # You'll need to specify r_func(tf) and the values of x, y, z at this time step
+        res5b = np.linalg.norm(E @ r_i - c.T @ (np.array([x_i[0], x_i[1], x_i[2]]) - r_i))
+        res7b = x_i[6] - m0 - mf
+        res9a = np.dot(np.array([1, 0, 0]), np.array([x_i[0], x_i[1], x_i[2]]))
+        res9b = np.array([x_i[3], x_i[4], x_i[5]])  # constraint: rdot(tf) = 0
+        res17a = A_func(omega) @ x_i + B @ (g + Tc_i / x_i[6])
+        res17b = -alpha * np.linalg.norm(Tc_i)
+        res18a = np.linalg.norm(Tc_i) - rho1
+        res18b = rho2 - np.linalg.norm(Tc_i)
+        res18c = np.linalg.norm(Tc_i) - rho1
+        res19 = np.dot(np.array([1, 0, 0]), Tc_i) - np.cos(params["theta"]) * np.linalg.norm(Tc_i)
+        res20 = error_margin - np.linalg.norm(E @ r_i - params["q"])
 
-    f3 = np.linalg.norm(E * r_func(tf) - q)
+        # Append the constraints at this time step to the list
+        constraints_at_step_i = [res5a, res5b, res7b, res9a] + res9b.tolist() + res17a.tolist() + [res17b, res18a, res18b, res18c, res19, res20]
+        all_constraints.extend(constraints_at_step_i)
 
-    # add gradient
-    g3 = np.zeros(2)
-
-    return f3, g3
-
-def problem4(des_vars, params):
-    """problem 4: convex relaxed min fuel problem"""
-
-    f4 = np.sum(Gamma, axis=0)
-
-    # add gradient
-    g4 = np.zeros(2)
-
-    return f4, g4
-
+    return np.array(all_constraints)
 
 if __name__ == '__main__':
     ### constants
@@ -153,9 +264,15 @@ if __name__ == '__main__':
     x0[3:6] = rdot0
     q = 0  # m, target landing site
 
-    # discretize time
+    """Solve Problem 4 Optimization Problem"""
+    #try optimizing ONLY FOR THE tf first!!!!
+    Tc0 = 0.5*24000*np.ones((3,))
+    state0 = np.append(x0, m0)
+    constraints = {'type': 'ineq', 'fun': constraints_func_discrete, 'args':(state0, params,)}
+    f_star = scipy.optimize.minimize(problem4_discrete, Tc0, args=(state0, params,), constraints=[constraints])
+    #results = scipy.optimize.minimize(problem4, Tc0, method='BFGS', options={'disp': True})
 
-    # propogate dynamics
+    """ Propogate Dynamics"""
     z0 = np.append(x0, m0)
     tarray = np.linspace(0, 10, 1000)
     Tc = 0.5 * Tmax  # assuming constant thrust over this short timer
@@ -163,9 +280,4 @@ if __name__ == '__main__':
     x = z[:, 0:6]
     m = z[:, 6]
     plot_trajectory(tarray, x)
-
-    # optimize problem 3, 4
-    # solve problem3 for dp3
-
-    # solve problem4 with dp3
 
