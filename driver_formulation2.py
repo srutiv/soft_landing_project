@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     """ PROBLEM FORMULATION 2: use problem 3 as a constraint for problem 4"""
-    """ BUILD PROBLEM """
 
+    """ BUILD PROBLEM """
     # initialization
     m0 = 2000  # kg
     mf = 300  # kg
@@ -80,6 +80,9 @@ if __name__ == '__main__':
     phase0.add_state('res18c', fix_initial=False, rate_source='res18c', units='N')  # constraint 18c
     phase0.add_state('res19', fix_initial=False, rate_source='res19', units='N')  # constraint 19
     phase0.add_state('res20', fix_initial=False, rate_source='res20', units='m')  # constraint 20
+
+    #external control as a design variable
+    #p.model.add_design_var("x_tf_ind", )
 
     """ CONSTRAINTS """
     # Add Constraints
