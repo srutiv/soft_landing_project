@@ -16,12 +16,12 @@ class LanderODE(Group):
                            promotes_inputs=['x', 'y', 'z', 'v_x', 'v_y', 'v_z', 'm', 'T_x',
                                             'T_y', 'T_z', 'Gamma',],
                            promotes_outputs=['xdot', 'ydot', 'zdot', 'v_xdot', 'v_ydot', 'v_zdot', 'mdot'])
-        self.add_subsystem('obj3', subsys=objective3(num_nodes=nn),
-                           promotes_inputs=['x', 'y', 'z',],
-                           promotes_outputs=['obj3',])
-        self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
-                           promotes_inputs=['v_x', 'v_y', 'v_z',],
-                           promotes_outputs=['constraint5a',])
+        # self.add_subsystem('obj3', subsys=objective3(num_nodes=nn),
+        #                    promotes_inputs=['x', 'y', 'z',],
+        #                    promotes_outputs=['obj3',])
+        # self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
+        #                    promotes_inputs=['v_x', 'v_y', 'v_z',],
+        #                    promotes_outputs=['constraint5a',])
         # self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
         #                    promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
         #                    promotes_outputs=['constraint5b',])
@@ -446,7 +446,8 @@ class FlightDynamics1(ExplicitComponent):
         alpha = 5e-4  # s/m
         #g = np.array([[-3.71], [0], [0]])
         g = np.array([-3.71, 0, 0])
-        omega = np.array([2.53e-5, 0, 6.62e-5])
+        # omega = np.array([2.53e-5, 0, 6.62e-5])
+        omega = np.array([2, 0, 3])
         gamma = math.pi / 4  # slide slope angle (0, pi/2)
         A = A_func(omega)  # 6x6
         B = np.zeros((6, 3))
@@ -463,34 +464,15 @@ class FlightDynamics1(ExplicitComponent):
         XDOT = np.dot(A, X) + np.dot(B, g[:, np.newaxis] + (Tc / m))
         mdot = -1 * alpha * Gamma
 
-        # upate constraint residuals
-        # res5a = Vmax - np.linalg.norm(np.array[v_x, v_y, v_z])
-        # res5b = np.linalg.norm(E * r_func(tf) - c.T * (np.array[x, y, z] - r_func(tf)))  # HOW DO WE KNOW r_tf???
-        # res7b = m - m0 - mf
-        # res9a = np.dot(e1, np.array[x, y, z])
-        # res9b = np.array[v_x, v_y, v_z]  # constraint: rdot(tf) = 0
-        # res17a = A_func(omega) * x_func(tf) + B * (g + Tc / m)
-        # res19 = np.dot(n.T, Tc) - math.cos(theta) * Gamma
-        # res20 = error_margin - np.linalg.norm(E * r_func(tf) - q)
 
         # Assign Outputs
         outputs["xdot"] = XDOT[0, :]
-        outputs["xdot"] = XDOT[1, :]
-        outputs["xdot"] = XDOT[2, :]
+        outputs["ydot"] = XDOT[1, :]
+        outputs["zdot"] = XDOT[2, :]
         outputs["v_xdot"] = XDOT[3, :]
-        outputs["v_xdot"] = XDOT[4, :]
-        outputs["v_xdot"] = XDOT[5, :]
+        outputs["v_ydot"] = XDOT[4, :]
+        outputs["v_zdot"] = XDOT[5, :]
         outputs["mdot"] = mdot
-        #outputs["obj3"] = obj3
-
-        # constraint outputs
-        # outputs["res5a"] = res5a
-        # outputs["res5b"] = res5b
-        # outputs["res7b"] = res7b
-        # outputs["res9a"] = res9a
-        # outputs["res17a"] = res17a
-        # outputs["res19"] = res19
-        # outputs["res20"] - res20
 
     def compute_partials(self, inputs, J):
         # Unpack inputs
