@@ -398,6 +398,7 @@ class FlightDynamics1(ExplicitComponent):
 
         self.declare_partials('zdot', 'v_z', rows=partial_range, cols=partial_range)
 
+        self.declare_partials('v_xdot', 'x', rows=partial_range, cols=partial_range)
         self.declare_partials('v_xdot', 'y', rows=partial_range, cols=partial_range)
         self.declare_partials('v_xdot', 'z', rows=partial_range, cols=partial_range)
         self.declare_partials('v_xdot', 'v_y', rows=partial_range, cols=partial_range)
@@ -406,6 +407,7 @@ class FlightDynamics1(ExplicitComponent):
         self.declare_partials('v_xdot', 'm', rows=partial_range, cols=partial_range)
 
         self.declare_partials('v_ydot', 'x', rows=partial_range, cols=partial_range)
+        self.declare_partials('v_ydot', 'y', rows=partial_range, cols=partial_range)
         self.declare_partials('v_ydot', 'z', rows=partial_range, cols=partial_range)
         self.declare_partials('v_ydot', 'v_x', rows=partial_range, cols=partial_range)
         self.declare_partials('v_ydot', 'v_z', rows=partial_range, cols=partial_range)
@@ -414,6 +416,7 @@ class FlightDynamics1(ExplicitComponent):
 
         self.declare_partials('v_zdot', 'x', rows=partial_range, cols=partial_range)
         self.declare_partials('v_zdot', 'y', rows=partial_range, cols=partial_range)
+        self.declare_partials('v_zdot', 'z', rows=partial_range, cols=partial_range)
         self.declare_partials('v_zdot', 'v_x', rows=partial_range, cols=partial_range)
         self.declare_partials('v_zdot', 'v_y', rows=partial_range, cols=partial_range)
         self.declare_partials('v_zdot', 'T_z', rows=partial_range, cols=partial_range)
@@ -446,8 +449,7 @@ class FlightDynamics1(ExplicitComponent):
         alpha = 5e-4  # s/m
         #g = np.array([[-3.71], [0], [0]])
         g = np.array([-3.71, 0, 0])
-        # omega = np.array([2.53e-5, 0, 6.62e-5])
-        omega = np.array([2, 0, 3])
+        omega = np.array([2.53e-5, 0, 6.62e-5])
         gamma = math.pi / 4  # slide slope angle (0, pi/2)
         A = A_func(omega)  # 6x6
         B = np.zeros((6, 3))
@@ -508,7 +510,10 @@ class FlightDynamics1(ExplicitComponent):
         pXDOT_pX = A
         #pXDOT_pT = B/m
         pXDOT_pT = B_reshape / m_reshape #6x3xnum nodes
-        #pXDOT_pm = -(1 / m ** 2) * np.dot(B_reshape, Tc) #6x1x60
+        #pXDOT_pm = -(1 / m ** 2) * np.dot(B_reshape, Tc) #6x1x6
+        
+        oneOverM = -(1 / m ** 2)
+        TB = np.tensordot(B_reshape, Tc, axes=([1], [0]))
         pXDOT_pm = -(1 / m ** 2) * np.tensordot(B_reshape, Tc, axes=([1], [0])) #tensor dot product
         #pXDOT_pm = np.swapaxes(pXDOT_pm, 1, 2)
         # pXDOT_pm = np.squeeze(pXDOT_pm) #squeeze unnecesasry dims
@@ -523,41 +528,46 @@ class FlightDynamics1(ExplicitComponent):
 
         #J['zdot', 'v_z'] = pXDOT_pX[2, 5]
         J['zdot', 'v_z'] = np.tile(pXDOT_pX[2, 5, np.newaxis], (1, 1, num_nodes))
-
-        J['v_xdot', 'y'] = pXDOT_pX[3, 1]
+        
+        # J['v_xdot', 'x'] = pXDOT_pX[3, 0]
+        J['v_xdot', 'x'] = np.tile(pXDOT_pX[3, 0, np.newaxis], (1, 1, num_nodes))        
+        # J['v_xdot', 'y'] = pXDOT_pX[3, 1]
         J['v_xdot', 'y'] = np.tile(pXDOT_pX[3, 1, np.newaxis], (1, 1, num_nodes))
-        J['v_xdot', 'z'] = pXDOT_pX[3, 2]
+        # J['v_xdot', 'z'] = pXDOT_pX[3, 2]
         J['v_xdot', 'z'] = np.tile(pXDOT_pX[3, 2, np.newaxis], (1, 1, num_nodes))
-        J['v_xdot', 'v_y'] = pXDOT_pX[3, 4]
+        # J['v_xdot', 'v_y'] = pXDOT_pX[3, 4]
         J['v_xdot', 'v_y'] = np.tile(pXDOT_pX[3, 4, np.newaxis], (1, 1, num_nodes))
-        J['v_xdot', 'v_z'] = pXDOT_pX[3, 5]
+        # J['v_xdot', 'v_z'] = pXDOT_pX[3, 5]
         J['v_xdot', 'v_z'] = np.tile(pXDOT_pX[3, 5, np.newaxis], (1, 1, num_nodes))
         J['v_xdot', 'T_x'] = pXDOT_pT[3, 0, :] #60,
-        #J['v_xdot', 'm'] = pXDOT_pm[3, 0, :]
-        J['v_xdot', 'm'] = pXDOT_pm[3, :, 0, 0]
+        J['v_xdot', 'm'] = pXDOT_pm[3, 0, 0, :]
 
-        J['v_ydot', 'x'] = pXDOT_pX[4, 0]
+        # J['v_ydot', 'x'] = pXDOT_pX[4, 0]
         J['v_ydot', 'x'] = np.tile(pXDOT_pX[4, 0, np.newaxis], (1, 1, num_nodes))
-        J['v_ydot', 'z'] = pXDOT_pX[4, 2]
+        # J['v_ydot', 'y'] = pXDOT_pX[4, 1]
+        J['v_ydot', 'y'] = np.tile(pXDOT_pX[4, 1, np.newaxis], (1, 1, num_nodes))
+        # J['v_ydot', 'z'] = pXDOT_pX[4, 2]
         J['v_ydot', 'z'] = np.tile(pXDOT_pX[4, 2, np.newaxis], (1, 1, num_nodes))
-        J['v_ydot', 'v_x'] = pXDOT_pX[4, 3]
+        # J['v_ydot', 'v_x'] = pXDOT_pX[4, 3]
         J['v_ydot', 'v_x'] = np.tile(pXDOT_pX[4, 3, np.newaxis], (1, 1, num_nodes))
-        J['v_ydot', 'v_z'] = pXDOT_pX[4, 5]
+        # J['v_ydot', 'v_z'] = pXDOT_pX[4, 5]
         J['v_ydot', 'v_z'] = np.tile(pXDOT_pX[4, 5, np.newaxis], (1, 1, num_nodes))
-        J['v_ydot', 'T_y'] = pXDOT_pT[4, 0, :]
+        J['v_ydot', 'T_y'] = pXDOT_pT[4, 1, :]
         #J['v_ydot', 'm'] = pXDOT_pm[4, 0]
-        J['v_ydot', 'm'] = pXDOT_pm[4, :, 0, 0]
+        J['v_ydot', 'm'] = pXDOT_pm[4, 0, 0, :]
 
-        J['v_zdot', 'x'] = pXDOT_pX[5, 0]
+        # J['v_zdot', 'x'] = pXDOT_pX[5, 0]
         J['v_zdot', 'x'] = np.tile(pXDOT_pX[5, 0, np.newaxis], (1, 1, num_nodes))
-        J['v_zdot', 'y'] = pXDOT_pX[5, 1]
+        # J['v_zdot', 'y'] = pXDOT_pX[5, 1]
         J['v_zdot', 'y'] = np.tile(pXDOT_pX[5, 1, np.newaxis], (1, 1, num_nodes))
-        J['v_zdot', 'v_x'] = pXDOT_pX[5, 3]
+        # J['v_zdot', 'z'] = pXDOT_pX[5, 2]
+        J['v_zdot', 'z'] = np.tile(pXDOT_pX[5, 2, np.newaxis], (1, 1, num_nodes))
+        # J['v_zdot', 'v_x'] = pXDOT_pX[5, 3]
         J['v_zdot', 'v_x'] = np.tile(pXDOT_pX[5, 3, np.newaxis], (1, 1, num_nodes))
-        J['v_zdot', 'v_y'] = pXDOT_pX[5, 4]
+        # J['v_zdot', 'v_y'] = pXDOT_pX[5, 4]
         J['v_zdot', 'v_y'] = np.tile(pXDOT_pX[5, 4, np.newaxis], (1, 1, num_nodes))
-        J['v_zdot', 'T_z'] = pXDOT_pT[5, 0, :]
+        J['v_zdot', 'T_z'] = pXDOT_pT[5, 2, :]
         #J['v_zdot', 'm'] = pXDOT_pm[5, 0]
-        J['v_zdot', 'm'] = pXDOT_pm[5, :, 0, 0]
+        J['v_zdot', 'm'] = pXDOT_pm[5, 0, 0, :]
 
         J['mdot', 'Gamma'] = pmdot_pGamma

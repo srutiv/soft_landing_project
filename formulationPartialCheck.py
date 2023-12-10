@@ -60,5 +60,5 @@ p.set_val('vars.Gamma', np.random.uniform(.6*24000, .8*24000, num_nodes))
 
 
 p.run_model()
-cpd = p.check_partials(method='fd', compact_print=True)
+cpd = p.check_partials(method='cs', compact_print=True)
 
