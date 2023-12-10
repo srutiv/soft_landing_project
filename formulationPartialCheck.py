@@ -61,5 +61,5 @@ p.set_val('vars.z_tf_ind', np.random.uniform(-.5, .5, num_nodes))
 
 
 p.run_model()
-cpd = p.check_partials(method='cs', compact_print=True)
+cpd = p.check_partials(method='fd', compact_print=True)
 
