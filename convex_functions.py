@@ -17,7 +17,7 @@ def plot_trajectory(time, x):
     axs1[2].set_xlabel('Time')
     axs1[2].grid()
 
-    # Create Figure 2: xdot, ydot, zdot vs time
+    # Create Figure 2: xdot, ydot, zdot vs time 
     fig2, axs2 = plt.subplots(3, 1, figsize=(8, 10))
     axs2[0].plot(time, x[:, 3], label='xdot')
     axs2[0].set_ylabel('xdot')
