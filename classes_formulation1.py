@@ -5,7 +5,6 @@ from openmdao.api import Group
 from openmdao.api import ExplicitComponent, Problem
 from convex_functions import A_func, S_func
 
-############################DONT THINK THIS IS NEEDED ********************************************************"""
 class LanderODE(Group):
 
     def initialize(self):
@@ -23,17 +22,16 @@ class LanderODE(Group):
         self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
                            promotes_inputs=['v_x', 'v_y', 'v_z',],
                            promotes_outputs=['constraint5a',])
-        self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
-                           promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
-                           promotes_outputs=['constraint5b',])
-        self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
-                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
-                           promotes_outputs=['constraint18a',])
-        self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
-                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
-                           promotes_outputs=['constraint19', ])
+        # self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
+        #                    promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+        #                    promotes_outputs=['constraint5b',])
+        # self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
+        #                    promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+        #                    promotes_outputs=['constraint18a',])
+        # self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
+        #                    promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+        #                    promotes_outputs=['constraint19', ])
 
-################################USE THIS INSTEAD OR PUT THIS IN THE LANDERODE CLASS??????????"""
 class constraint5a(ExplicitComponent):
     """
     """
@@ -70,7 +68,7 @@ class constraint5a(ExplicitComponent):
         # constants
         Vmax = 100  # m/s
 
-        constraint5a = Vmax - np.linalg.norm([v_x, v_y, v_z])
+        constraint5a = Vmax - np.linalg.norm([v_x, v_y, v_z], axis=0)
 
         # constraint outputs
         outputs["constraint5a"] = constraint5a
@@ -81,13 +79,12 @@ class constraint5a(ExplicitComponent):
         v_y = inputs['v_y']
         v_z = inputs['v_z']
 
-        v_norm = np.linalg.norm(v_x)
+        v_norm = np.linalg.norm([v_x, v_y, v_z], axis=0)
 
         # Assign Partials
-        J['constraint5a', 'v_x'] = v_x/v_norm
+        J['constraint5a', 'v_x'] = v_x / v_norm
         J['constraint5a', 'v_y'] = v_y / v_norm
         J['constraint5a', 'v_z'] = v_z / v_norm
-
 
 class constraint5b(ExplicitComponent):
     """
@@ -178,7 +175,6 @@ class constraint5b(ExplicitComponent):
 
         J['constraint5b', 'z'] = (z-z_tf_ind)/E_norm
         J['constraint5b', 'z_tf_ind'] = -(z-z_tf_ind)/E_norm
-
 
 class constraint18a(ExplicitComponent):
     """
@@ -369,6 +365,7 @@ class FlightDynamics1(ExplicitComponent):
 
     def setup(self):
         nn = self.options['num_nodes']
+        
         # Equations of Motions
         self.add_input('x', val=np.ones(nn), desc='x position', units='m')
         self.add_input('y', val=np.ones(nn), desc='y position', units='m')
@@ -381,9 +378,6 @@ class FlightDynamics1(ExplicitComponent):
         self.add_input('T_y', val=np.ones(nn), desc='Thrust control y', units='N')
         self.add_input('T_z', val=np.ones(nn), desc='Thrust control z', units='N')
         self.add_input('Gamma', val=np.ones(nn), desc='Thrust control Bound', units='N')
-        # self.add_input('res7b', val=np.ones(nn), desc='constraint residual 7b', units='kg')
-        # self.add_input('res17a', val=np.ones(nn), desc='constraint residual 17a', units='m/s')
-        # self.add_input('res19', val=np.ones(nn), desc='constraint residual 19', units='N')
 
         # Derivatives of the equations of motions
         self.add_output('xdot', val=np.ones(nn), desc='x position rate', units='m/s')
@@ -394,11 +388,7 @@ class FlightDynamics1(ExplicitComponent):
         self.add_output('v_zdot', val=np.ones(nn), desc='z velocity rate', units='m/s**2')
         self.add_output('mdot', val=np.ones(nn), desc='mass change rate', units='kg/s')
 
-        ####################### Time derivatives dont know if we need these? ####################################
-        # self.add_output('Tc', val=np.ones(nn), desc='Tc optimal', units='N')
-        # self.add_output('Gamma', val=np.ones(nn), desc='norm Tc optimal', units='N')
-        # self.add_output('q', val=np.ones(nn), desc='final landing coordinates', units='m') 
-
+        # Add partial range
         partial_range = np.arange(nn, dtype=int)
 
         # Declare Partials of outputs wrt inputs
@@ -447,13 +437,9 @@ class FlightDynamics1(ExplicitComponent):
         T_z = inputs['T_z']
         m = inputs['m']
         Gamma = inputs['Gamma']
-        # res17a = input["res17a"]
-        # res19 = input["res19"]
 
         # Arrange into array for easy computing
-        #X = np.array([[x], [y], [z], [v_x], [v_y], [v_z]])
         X = np.array([x, y, z, v_x, v_y, v_z])
-        #Tc = np.array([[T_x], [T_y], [T_z]])
         Tc = np.array([T_x, T_y, T_z])
 
         # Constants
