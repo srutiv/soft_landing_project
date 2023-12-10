@@ -16,21 +16,21 @@ class LanderODE(Group):
                            promotes_inputs=['x', 'y', 'z', 'v_x', 'v_y', 'v_z', 'm', 'T_x',
                                             'T_y', 'T_z', 'Gamma',],
                            promotes_outputs=['xdot', 'ydot', 'zdot', 'v_xdot', 'v_ydot', 'v_zdot', 'mdot'])
-        # self.add_subsystem('obj3', subsys=objective3(num_nodes=nn),
-        #                    promotes_inputs=['x', 'y', 'z',],
-        #                    promotes_outputs=['obj3',])
-        # self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
-        #                    promotes_inputs=['v_x', 'v_y', 'v_z',],
-        #                    promotes_outputs=['constraint5a',])
-        # self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
-        #                    promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
-        #                    promotes_outputs=['constraint5b',])
-        # self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
-        #                    promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
-        #                    promotes_outputs=['constraint18a',])
-        # self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
-        #                    promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
-        #                    promotes_outputs=['constraint19', ])
+        self.add_subsystem('obj3', subsys=objective3(num_nodes=nn),
+                           promotes_inputs=['x', 'y', 'z',],
+                           promotes_outputs=['obj3',])
+        self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
+                           promotes_inputs=['v_x', 'v_y', 'v_z',],
+                           promotes_outputs=['constraint5a',])
+        self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
+                           promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_outputs=['constraint5b',])
+        self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
+                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+                           promotes_outputs=['constraint18a',])
+        self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
+                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+                           promotes_outputs=['constraint19', ])
 
 class constraint5a(ExplicitComponent):
     """
@@ -139,7 +139,8 @@ class constraint5b(ExplicitComponent):
         e1 = np.array([1, 0, 0])  # axial direction
         c = e1 / math.tan(gamma)  # glide slope direction
 
-        constraint5b = np.linalg.norm(np.dot(E, r - r_tf)) - np.dot(c.T, (r - r_tf))
+        t2Test = np.dot(c.T, (r - r_tf))
+        constraint5b = np.linalg.norm(np.dot(E, r - r_tf), axis = 0) - np.dot(c.T, (r - r_tf))
 
         # constraint outputs
         outputs["constraint5b"] = constraint5b
@@ -164,7 +165,7 @@ class constraint5b(ExplicitComponent):
         e1 = np.array([1, 0, 0])  # axial direction
         c = e1 / math.tan(gamma)  # glide slope direction
 
-        E_norm = np.linalg.norm(np.dot(E, r - r_tf))
+        E_norm = np.linalg.norm(np.dot(E, r - r_tf), axis=0)
 
         # Assign Partials
         J['constraint5b', 'x'] = -1/math.tan(gamma)
@@ -212,7 +213,7 @@ class constraint18a(ExplicitComponent):
         T_z = inputs['T_z']
         Gamma = inputs['Gamma']
 
-        constraint18a = Gamma - np.linalg.norm([T_x, T_y, T_z])
+        constraint18a = Gamma - np.linalg.norm([T_x, T_y, T_z], axis=0)
 
         # constraint outputs
         outputs["constraint18a"] = constraint18a
@@ -224,7 +225,7 @@ class constraint18a(ExplicitComponent):
         T_z = inputs['T_z']
         Gamma = inputs['Gamma']
 
-        T_norm = np.linalg.norm([T_x, T_y, T_z])
+        T_norm = np.linalg.norm([T_x, T_y, T_z], axis=0)
 
         # Assign Partials
         J['constraint18a', 'T_x'] = -T_x/T_norm
