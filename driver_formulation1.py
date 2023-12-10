@@ -36,7 +36,7 @@ if __name__ == '__main__':
     traj = p.model.add_subsystem('traj', dm.Trajectory())
     phase0 = traj.add_phase('phase0',
                             dm.Phase(ode_class=LanderODE,
-                            transcription=dm.Radau(num_segments=15, order=3)))
+                            transcription=dm.Radau(num_segments=20, order=3)))
     tx = phase0.options['transcription']
     phase0.set_time_options(fix_initial=True, units='s', duration_bounds=(10, 150)) #maximum duration of simulation?
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     phase0.add_state('v_z', fix_initial=True, fix_final=True, units='m/s',
                      rate_source='v_zdot')
     phase0.add_state('m', fix_initial=True, fix_final=False, units='kg',
-                     rate_source='mdot', lower=0)
+                     rate_source='mdot', lower=m0-mf)
 
     ## add states related to design variables
     phase0.add_control('Gamma', units='N', opt=True, lower=4800, upper=19200, )  # can add upper and lower limits if desired
@@ -173,15 +173,15 @@ if __name__ == '__main__':
     sol = om.CaseReader('dymos_solution.db').get_case('final')
     sim = om.CaseReader('dymos_simulation.db').get_case('final')
 
-    """ PLOT """
-    plot_results([('traj.phase0.timeseries.time', 'traj.phase0.timeseries.alpha',
-                   'time (s)', 'alpha (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.beta',
-                   'time (s)', 'beta (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.theta',
-                   'time (s)', 'theta (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.q',
-                   'time (s)', 'q (Btu/ft**2/s)')], title='Reentry Solution', p_sol=sol,
-                 p_sim=sim)
+    # """ PLOT """
+    # plot_results([('traj.phase0.timeseries.time', 'traj.phase0.timeseries.alpha',
+    #                'time (s)', 'alpha (rad)'),
+    #               ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.beta',
+    #                'time (s)', 'beta (rad)'),
+    #               ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.theta',
+    #                'time (s)', 'theta (rad)'),
+    #               ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.q',
+    #                'time (s)', 'q (Btu/ft**2/s)')], title='Reentry Solution', p_sol=sol,
+    #              p_sim=sim)
 
-    plt.show()
+    # plt.show()

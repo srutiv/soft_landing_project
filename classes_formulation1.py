@@ -80,11 +80,15 @@ class constraint5a(ExplicitComponent):
         v_z = inputs['v_z']
 
         v_norm = np.linalg.norm([v_x, v_y, v_z], axis=0)
+        
+        # Divide by zero regulation epsilon
+        epsilon = 1e-10
 
         # Assign Partials
-        J['constraint5a', 'v_x'] = v_x / v_norm
-        J['constraint5a', 'v_y'] = v_y / v_norm
-        J['constraint5a', 'v_z'] = v_z / v_norm
+        # Element wise ???
+        J['constraint5a', 'v_x'] = v_x / (v_norm + epsilon)
+        J['constraint5a', 'v_y'] = v_y / (v_norm + epsilon)
+        J['constraint5a', 'v_z'] = v_z / (v_norm + epsilon)
 
 class constraint5b(ExplicitComponent):
     """
@@ -166,7 +170,11 @@ class constraint5b(ExplicitComponent):
         c = e1 / math.tan(gamma)  # glide slope direction
 
         E_norm = np.linalg.norm(np.dot(E, r - r_tf), axis=0)
-
+        
+        # Divide by zero regulation epsilon
+        epsilon = 1e-10
+        E_norm = E_norm+epsilon
+        
         # Assign Partials
         J['constraint5b', 'x'] = -1/math.tan(gamma)
         J['constraint5b', 'x_tf_ind'] = 1/math.tan(gamma)
@@ -226,6 +234,10 @@ class constraint18a(ExplicitComponent):
         Gamma = inputs['Gamma']
 
         T_norm = np.linalg.norm([T_x, T_y, T_z], axis=0)
+        
+        # Divide by zero regulation epsilon
+        epsilon = 1e-10
+        T_norm = T_norm+epsilon
 
         # Assign Partials
         J['constraint18a', 'T_x'] = -T_x/T_norm
@@ -346,6 +358,10 @@ class objective3(ExplicitComponent):
 
         q = np.array([0, 0])  # m, target landing site
         norm_val = np.linalg.norm(np.array([y, z]) - q[:, np.newaxis], axis=0)
+        
+        # Divide by zero regulation epsilon
+        epsilon = 1e-10
+        norm_val = norm_val + epsilon
 
         # Assign Partials
         J['obj3', 'x'] = 0
