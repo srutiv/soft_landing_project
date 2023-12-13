@@ -5,6 +5,7 @@ from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
 
 from classes_formulation1 import LanderODE
 import matplotlib.pyplot as plt
+from dymos.examples.plotting import plot_results
 #import build_pyoptsparse
 #import pyoptsparse
 
@@ -31,6 +32,7 @@ if __name__ == '__main__':
     p.driver = ScipyOptimizeDriver()
     p.driver.declare_coloring()
     p.driver.options['optimizer'] = 'SLSQP'
+    #p.driver.options['optimizer'] = 'shgo'
 
     # Instantiate the trajectory and add a phase to it
     traj = p.model.add_subsystem('traj', dm.Trajectory())
@@ -174,14 +176,10 @@ if __name__ == '__main__':
     sim = om.CaseReader('dymos_simulation.db').get_case('final')
 
     """ PLOT """
-    plot_results([('traj.phase0.timeseries.time', 'traj.phase0.timeseries.alpha',
-                   'time (s)', 'alpha (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.beta',
-                   'time (s)', 'beta (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.theta',
-                   'time (s)', 'theta (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.q',
-                   'time (s)', 'q (Btu/ft**2/s)')], title='Reentry Solution', p_sol=sol,
+    plot_results([('traj.phase0.timeseries.time', 'traj.phase0.timeseries.x',
+                   'time (s)', 'x (m)'),
+                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.y',
+                   'time (s)', 'y (m)'),], title='Reentry Solution', p_sol=sol,
                  p_sim=sim)
 
     plt.show()

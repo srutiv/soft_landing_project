@@ -333,7 +333,7 @@ class objective3(ExplicitComponent):
         E[0, :] = np.array([0, 1, 0])
         E[1, :] = np.array([0, 0, 1])
 
-        q = np.array([0, 0])  # m, target landing site
+        q = np.array([1, 1])  # m, target landing site
         r = np.array([x, y, z])
 
         obj3 = np.linalg.norm(np.dot(E, r) - q[:, np.newaxis], axis=0)
@@ -347,7 +347,7 @@ class objective3(ExplicitComponent):
         y = inputs['y']
         z = inputs['z']
 
-        q = np.array([0, 0])  # m, target landing site
+        q = np.array([1, 1])  # m, target landing site
         norm_val = np.linalg.norm(np.array([y, z]) - q[:, np.newaxis], axis=0)
 
         # Assign Partials
