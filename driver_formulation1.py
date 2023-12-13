@@ -47,18 +47,18 @@ if __name__ == '__main__':
     # Connect this to controls:tf in the appropriate phase.
     # connect calls are cached, so we can do this before we actually add the trajectory to the problem.
 
-    ivc_x = p.model.add_subsystem('ivc_xind', om.IndepVarComp(), promotes_outputs=['*'])
-    ivc_x.add_output('x_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('x_tf_ind', units='m' )
-    # p.model.connect('x_tf_ind', 'traj.phase0.controls:x_tf_ind')
+    # ivc_x = p.model.add_subsystem('ivc_xind', om.IndepVarComp(), promotes_outputs=['*'])
+    # ivc_x.add_output('x_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
+    # p.model.add_design_var('x_tf_ind', units='m' )
+    # # p.model.connect('x_tf_ind', 'traj.phase0.controls:x_tf_ind')
 
-    ivc_y = p.model.add_subsystem('ivc_yind', om.IndepVarComp(), promotes_outputs=['*'])
-    ivc_y.add_output('y_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('y_tf_ind', units='m')
+    # ivc_y = p.model.add_subsystem('ivc_yind', om.IndepVarComp(), promotes_outputs=['*'])
+    # ivc_y.add_output('y_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
+    # p.model.add_design_var('y_tf_ind', units='m')
 
-    ivc_z = p.model.add_subsystem('ivc_zind', om.IndepVarComp(), promotes_outputs=['*'])
-    ivc_z.add_output('z_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('z_tf_ind', units='m')
+    # ivc_z = p.model.add_subsystem('ivc_zind', om.IndepVarComp(), promotes_outputs=['*'])
+    # ivc_z.add_output('z_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
+    # p.model.add_design_var('z_tf_ind', units='m')
 
 
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     #phase0.add_path_constraint('res5a', lower=0, upper=70, ref=70)
     # phase0.add_timeseries_output('q', shape=(1,))
     #phase0.add_boundary_constraint("res5a")
-    phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
+    # phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)    RECENTLY CHANGED NOT LIKE EVERYTHING ELSE !!!!!!!!!!
     phase0.add_boundary_constraint('res7b = m - 1700', loc='final', lower=0)
     #phase0.add_boundary_constraint("res9a")
     #phase0.add_boundary_constraint('res17a') #evaluated as a state w/ dynamics expression
@@ -115,7 +115,7 @@ if __name__ == '__main__':
 
     ## Add Path constraints
     # phase0.add_timeseries_output('q', shape=(1,))
-    phase0.add_path_constraint("constraint5a", lower=0)
+    phase0.add_path_constraint("constraint5a", lower=1e-6)
     phase0.add_path_constraint("constraint5b", upper=-1e-6)
     phase0.add_path_constraint("constraint18a", lower=1e-6)
     #phase0.add_path_constraint('res17a')  # evaluated as a state w/ dynamics expression

@@ -23,7 +23,7 @@ class LanderODE(Group):
                            promotes_inputs=['v_x', 'v_y', 'v_z',],
                            promotes_outputs=['constraint5a',])
         self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
-                           promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_inputs=['x', 'y', 'z',],
                            promotes_outputs=['constraint5b',])
         self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
@@ -104,9 +104,9 @@ class constraint5b(ExplicitComponent):
         self.add_input('x', val=np.ones(nn), desc='x position', units='m')
         self.add_input('y', val=np.ones(nn), desc='y position', units='m')
         self.add_input('z', val=np.ones(nn), desc='z position', units='m')
-        self.add_input('x_tf_ind', val=np.ones(nn), desc='x_tf position', units='m')
-        self.add_input('y_tf_ind', val=np.ones(nn), desc='y_tf position', units='m')
-        self.add_input('z_tf_ind', val=np.ones(nn), desc='z_tf position', units='m')
+        # self.add_input('x_tf_ind', val=np.ones(nn), desc='x_tf position', units='m')
+        # self.add_input('y_tf_ind', val=np.ones(nn), desc='y_tf position', units='m')
+        # self.add_input('z_tf_ind', val=np.ones(nn), desc='z_tf position', units='m')
 
         # Derivatives of the equations of motions
         self.add_output('constraint5b', val=np.ones(nn), desc='cone constraint', units='m/s')
@@ -116,9 +116,9 @@ class constraint5b(ExplicitComponent):
         self.declare_partials('constraint5b', 'x', rows=partial_range, cols=partial_range)
         self.declare_partials('constraint5b', 'y', rows=partial_range, cols=partial_range)
         self.declare_partials('constraint5b', 'z', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint5b', 'x_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint5b', 'y_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint5b', 'z_tf_ind', rows=partial_range, cols=partial_range)
+        # self.declare_partials('constraint5b', 'x_tf_ind', rows=partial_range, cols=partial_range)
+        # self.declare_partials('constraint5b', 'y_tf_ind', rows=partial_range, cols=partial_range)
+        # self.declare_partials('constraint5b', 'z_tf_ind', rows=partial_range, cols=partial_range)
 
     def compute(self, inputs, outputs):
         """
@@ -128,9 +128,15 @@ class constraint5b(ExplicitComponent):
         x = inputs['x']
         y = inputs['y']
         z = inputs['z']
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        # x_tf_ind = inputs['x_tf_ind']
+        # y_tf_ind = inputs['y_tf_ind']
+        # z_tf_ind = inputs['z_tf_ind']
+        
+        # Build final values as an array of length nn
+        nn = np.size(x)
+        x_tf_ind = np.ones(nn) * x[-1]
+        y_tf_ind = np.ones(nn) * y[-1]
+        z_tf_ind = np.ones(nn) * z[-1]
 
         r = np.array([x, y, z])
         r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
@@ -154,9 +160,15 @@ class constraint5b(ExplicitComponent):
         x = inputs['x']
         y = inputs['y']
         z = inputs['z']
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        # x_tf_ind = inputs['x_tf_ind']
+        # y_tf_ind = inputs['y_tf_ind']
+        # z_tf_ind = inputs['z_tf_ind']
+        
+        # Build final values as an array of length nn
+        nn = np.size(x)
+        x_tf_ind = np.ones(nn) * x[-1]
+        y_tf_ind = np.ones(nn) * y[-1]
+        z_tf_ind = np.ones(nn) * z[-1]
 
         r = np.array([x, y, z])
         r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
@@ -173,17 +185,27 @@ class constraint5b(ExplicitComponent):
         
         # Divide by zero regulation epsilon
         epsilon = 1e-10
-        E_norm = E_norm+epsilon
+        E_norm = E_norm + epsilon
+        
+        # Intermediate partials
+        # px = -1/math.tan(gamma)
+        # py = (y-y_tf_ind)/E_norm
+        # pz = (z-z_tf_ind)/E_norm
         
         # Assign Partials
-        J['constraint5b', 'x'] = -1/math.tan(gamma)
-        J['constraint5b', 'x_tf_ind'] = 1/math.tan(gamma)
-
+        J['constraint5b', 'x'] = np.ones(nn) * (-1/math.tan(gamma))
         J['constraint5b', 'y'] = (y-y_tf_ind)/E_norm
-        J['constraint5b', 'y_tf_ind'] = -(y-y_tf_ind)/E_norm
-
         J['constraint5b', 'z'] = (z-z_tf_ind)/E_norm
-        J['constraint5b', 'z_tf_ind'] = -(z-z_tf_ind)/E_norm
+        
+        
+        # J['constraint5b', 'x'] = -1/math.tan(gamma)
+        # J['constraint5b', 'x_tf_ind'] = 1/math.tan(gamma)
+        
+        # J['constraint5b', 'y'] = (y-y_tf_ind)/E_norm
+        # J['constraint5b', 'y_tf_ind'] = -(y-y_tf_ind)/E_norm
+
+        # J['constraint5b', 'z'] = (z-z_tf_ind)/E_norm
+        # J['constraint5b', 'z_tf_ind'] = -(z-z_tf_ind)/E_norm
 
 class constraint18a(ExplicitComponent):
     """
