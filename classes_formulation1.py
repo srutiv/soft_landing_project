@@ -175,6 +175,11 @@ class constraint5b(ExplicitComponent):
         epsilon = 1e-10
         E_norm = E_norm+epsilon
         
+        # Intermediate values
+        Jx = -1/math.tan(gamma)
+        Jy = (y-y_tf_ind)/E_norm
+        Jz = (z-z_tf_ind)/E_norm
+        
         # Assign Partials
         J['constraint5b', 'x'] = -1/math.tan(gamma)
         J['constraint5b', 'x_tf_ind'] = 1/math.tan(gamma)
