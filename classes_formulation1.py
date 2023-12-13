@@ -74,7 +74,7 @@ class constraint5a(ExplicitComponent):
         outputs["constraint5a"] = constraint5a
 
     def compute_partials(self, inputs, J):
-        # Unpack inputs 
+        # Unpack inputs
         v_x = inputs['v_x']
         v_y = inputs['v_y']
         v_z = inputs['v_z']
