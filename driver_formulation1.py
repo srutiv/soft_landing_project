@@ -5,8 +5,8 @@ from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
 
 from classes_formulation1 import LanderODE
 import matplotlib.pyplot as plt
-#import build_pyoptsparse
-#import pyoptsparse
+import build_pyoptsparse
+import pyoptsparse
 
 if __name__ == '__main__':
 
@@ -27,8 +27,8 @@ if __name__ == '__main__':
 
     # Instantiate the problem, add the driver, and allow it to use coloring
     p = om.Problem(model=om.Group())
-    #p.driver = om.pyOptSparseDriver() #cursed
-    p.driver = ScipyOptimizeDriver()
+    p.driver = om.pyOptSparseDriver() #cursed
+    #p.driver = ScipyOptimizeDriver()
     p.driver.declare_coloring()
     p.driver.options['optimizer'] = 'SLSQP'
 
