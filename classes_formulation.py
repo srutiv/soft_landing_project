@@ -17,9 +17,9 @@ class LanderODE_obj4(Group):
                            promotes_inputs=['x', 'y', 'z', 'v_x', 'v_y', 'v_z', 'm', 'T_x',
                                             'T_y', 'T_z', 'Gamma', ],
                            promotes_outputs=['xdot', 'ydot', 'zdot', 'v_xdot', 'v_ydot', 'v_zdot', 'mdot'])
-        self.add_subsystem('obj4', subsys=objective4(num_nodes=nn),
+        self.add_subsystem('obj4Dt', subsys=objective4(num_nodes=nn),
                            promotes_inputs=['Gamma', ],
-                           promotes_outputs=['obj4', ])
+                           promotes_outputs=['obj4Dot', ])
         self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
                            promotes_inputs=['v_x', 'v_y', 'v_z', ],
                            promotes_outputs=['constraint5a', ])
@@ -33,7 +33,7 @@ class LanderODE_obj4(Group):
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
                            promotes_outputs=['constraint19', ])
         self.add_subsystem('comp20', subsys=constraint20(num_nodes=nn),
-                           promotes_inputs=['x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_inputs=['x', 'y', 'z'],
                            promotes_outputs=['constraint20', ])
 
 
@@ -77,9 +77,9 @@ class LanderODE_form2(Group):
                            promotes_inputs=['x', 'y', 'z', 'v_x', 'v_y', 'v_z', 'm', 'T_x',
                                             'T_y', 'T_z', 'Gamma', ],
                            promotes_outputs=['xdot', 'ydot', 'zdot', 'v_xdot', 'v_ydot', 'v_zdot', 'mdot'])
-        self.add_subsystem('obj4', subsys=objective4(num_nodes=nn),
+        self.add_subsystem('obj4Dt', subsys=objective4(num_nodes=nn),
                            promotes_inputs=['Gamma', ],
-                           promotes_outputs=['obj4', ])
+                           promotes_outputs=['obj4Dot', ])
         self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
                            promotes_inputs=['v_x', 'v_y', 'v_z', ],
                            promotes_outputs=['constraint5a', ])
@@ -93,7 +93,7 @@ class LanderODE_form2(Group):
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
                            promotes_outputs=['constraint19', ])
         self.add_subsystem('comp20', subsys=constraint20_form2mod(num_nodes=nn), #modified using obj3 as a constraint
-                           promotes_inputs=['x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_inputs=['x', 'y', 'z'],
                            promotes_outputs=['constraint20', ])
 
 class constraint5a(ExplicitComponent):
@@ -390,29 +390,29 @@ class constraint20(ExplicitComponent):
         nn = self.options['num_nodes']
 
         # Equations of Motions
-        self.add_input('x_tf_ind', val=np.ones(nn), desc='x_tf position', units='m')
-        self.add_input('y_tf_ind', val=np.ones(nn), desc='y_tf position', units='m')
-        self.add_input('z_tf_ind', val=np.ones(nn), desc='z_tf position', units='m')
+        self.add_input('x', val=np.ones(nn), desc='x tf position', units='m')
+        self.add_input('y', val=np.ones(nn), desc='y tf position', units='m')
+        self.add_input('z', val=np.ones(nn), desc='z tf position', units='m')
 
         # Derivatives of the equations of motions
         self.add_output('constraint20', val=np.ones(nn), desc='landing error', units='m')
 
         # Declare Partials of outputs wrt inputs
         partial_range = np.arange(nn, dtype=int)
-        self.declare_partials('constraint20', 'x_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint20', 'y_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint20', 'z_tf_ind', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'x', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'y', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'z', rows=partial_range, cols=partial_range)
 
     def compute(self, inputs, outputs):
         """
         dynamics function: lander modeled as a lumped parameter mass with Tc for control
         """
         # Unpack inputs
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        x = inputs['x']
+        y = inputs['y']
+        z = inputs['z']
 
-        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+        r = np.array([x, y, z])
 
         # constants
         dp3 = np.array([0.9999994, 1.0000002])
@@ -420,36 +420,36 @@ class constraint20(ExplicitComponent):
         E = np.zeros((2, 3))
         E[0, :] = np.array([0, 1, 0])
         E[1, :] = np.array([0, 0, 1])
-
-        constraint20 = np.linalg.norm(np.dot(E, r_tf), axis=0) - np.linalg.norm(dp3 - q)
+       
+        constraint20 = np.linalg.norm(np.dot(E, r) - q[:, np.newaxis], axis=0) - np.linalg.norm(dp3 - q)
 
         # constraint outputs
         outputs["constraint20"] = constraint20
 
     def compute_partials(self, inputs, J):
         # Unpack inputs
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        x = inputs['x']
+        y = inputs['y']
+        z = inputs['z']
 
-        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+        r_tf = np.array([x, y, z])
 
         # constants
         E = np.zeros((2, 3))
         E[0, :] = np.array([0, 1, 0])
         E[1, :] = np.array([0, 0, 1])
+        
         q = np.array([0, 0])  # m, target landing site
-
-        the_norm = np.linalg.norm(np.dot(E, r_tf)-q, axis=0)
+        norm_val = np.linalg.norm(np.array([y, z]) - q[:, np.newaxis], axis=0)
 
         # Divide by zero regulation epsilon
         epsilon = 1e-10
-        the_norm = the_norm + epsilon
+        norm_val = norm_val + epsilon
 
         # Assign Partials
-        J['constraint20', 'x_tf_ind'] = epsilon #basically 0
-        J['constraint20', 'y_tf_ind'] = (y_tf_ind - q[0]) / the_norm
-        J['constraint20', 'z_tf_ind'] = (z_tf_ind - q[1]) / the_norm
+        J['constraint20', 'x'] = 0
+        J['constraint20', 'y'] = (y - q[0]) / norm_val
+        J['constraint20', 'z'] = (z - q[1]) / norm_val
 
 class constraint20_form2mod(ExplicitComponent):
     """
@@ -462,37 +462,39 @@ class constraint20_form2mod(ExplicitComponent):
         nn = self.options['num_nodes']
 
         # Equations of Motions
-        self.add_input('x_tf_ind', val=np.ones(nn), desc='x_tf position', units='m')
-        self.add_input('y_tf_ind', val=np.ones(nn), desc='y_tf position', units='m')
-        self.add_input('z_tf_ind', val=np.ones(nn), desc='z_tf position', units='m')
+        self.add_input('x', val=np.ones(nn), desc='x_tf position', units='m')
+        self.add_input('y', val=np.ones(nn), desc='y_tf position', units='m')
+        self.add_input('z', val=np.ones(nn), desc='z_tf position', units='m')
 
         # Derivatives of the equations of motions
         self.add_output('constraint20', val=np.ones(nn), desc='landing error', units='m')
 
         # Declare Partials of outputs wrt inputs
         partial_range = np.arange(nn, dtype=int)
-        self.declare_partials('constraint20', 'x_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint20', 'y_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint20', 'z_tf_ind', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'x', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'y', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'z', rows=partial_range, cols=partial_range)
 
     def compute(self, inputs, outputs):
         """
         dynamics function: lander modeled as a lumped parameter mass with Tc for control
         """
         # Unpack inputs
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        x = inputs['x']
+        y = inputs['y']
+        z = inputs['z']
 
-        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+        r = np.array([x, y, z])
 
         # constants
+        errtol = 1.5 # allowable error in position
+        
         q = np.array([0, 0])  # m, target landing site
         E = np.zeros((2, 3))
         E[0, :] = np.array([0, 1, 0])
         E[1, :] = np.array([0, 0, 1])
 
-        constraint20 = np.linalg.norm(np.dot(E, r_tf) - q[:, np.newaxis], axis=0) #obj3 as a constraint
+        constraint20 = np.linalg.norm(np.dot(E, r) - q[:, np.newaxis], axis=0) - errtol #obj3 as a constraint
         #constraint20 = np.linalg.norm(np.dot(E, r_tf), axis=0) - np.linalg.norm(dp3 - q)
 
         # constraint outputs
@@ -500,11 +502,11 @@ class constraint20_form2mod(ExplicitComponent):
 
     def compute_partials(self, inputs, J):
         # Unpack inputs
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        x = inputs['x']
+        y = inputs['y']
+        z = inputs['z']
 
-        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+        r_tf = np.array([x, y, z])
 
         # constants
         E = np.zeros((2, 3))
@@ -512,16 +514,16 @@ class constraint20_form2mod(ExplicitComponent):
         E[1, :] = np.array([0, 0, 1])
         q = np.array([0, 0])  # m, target landing site
 
-        the_norm = np.linalg.norm(np.dot(E, r_tf)-q, axis=0)
-
+        the_norm = np.linalg.norm(np.array([y, z]) - q[:, np.newaxis], axis=0)
+        
         # Divide by zero regulation epsilon
         epsilon = 1e-10
         the_norm = the_norm + epsilon
 
         # Assign Partials
-        J['constraint20', 'x_tf_ind'] = epsilon #basically 0
-        J['constraint20', 'y_tf_ind'] = (y_tf_ind - q[0]) / the_norm
-        J['constraint20', 'z_tf_ind'] = (z_tf_ind - q[1]) / the_norm
+        J['constraint20', 'x'] = 0
+        J['constraint20', 'y'] = (y - q[0]) / the_norm
+        J['constraint20', 'z'] = (z - q[1]) / the_norm
 
 class objective3(ExplicitComponent):
     """
@@ -598,11 +600,11 @@ class objective4(ExplicitComponent):
         self.add_input('Gamma', val=np.ones(nn), desc='thrust bound', units='N')
 
         # Derivatives of the equations of motions
-        self.add_output('obj4', val=np.ones(nn), desc='fuel consumption', units='m')
+        self.add_output('obj4Dot', val=np.ones(nn), desc='Max Impulse', units='m', tags=['dymos.state_rate_source:obj4'])
 
         # Declare Partials of outputs wrt inputs
         partial_range = np.arange(nn, dtype=int)
-        self.declare_partials('obj4', 'Gamma', rows=partial_range, cols=partial_range)
+        self.declare_partials('obj4Dot', 'Gamma', rows=partial_range, cols=partial_range)
 
     def compute(self, inputs, outputs):
         """
@@ -611,17 +613,17 @@ class objective4(ExplicitComponent):
         # Unpack inputs
         Gamma = inputs['Gamma']
 
-        obj4 = np.sum(Gamma, axis=0)  # integrate Gamma across time
+        obj4Dot = Gamma  # integrate Gamma across time
 
         # constraint outputs
-        outputs["obj4"] = obj4
+        outputs["obj4Dot"] = obj4Dot
 
     def compute_partials(self, inputs, J):
         # Unpack inputs
         Gamma = inputs['Gamma']
 
         # Assign Partials
-        J['obj4', 'Gamma'] = Gamma
+        J['obj4Dot', 'Gamma'] = 1
 
 
 class FlightDynamics1(ExplicitComponent):

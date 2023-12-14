@@ -5,18 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab2e5813-30e3-4bee-a1f5-0283f4c6e218" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/soft_landing_project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/soft_landing_project.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/driver_formulation1.py" beforeDir="false" afterPath="$PROJECT_DIR$/driver_formulation1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SLSQP.out" beforeDir="false" afterPath="$PROJECT_DIR$/SLSQP.out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classes_formulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes_formulation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/convex_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/convex_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/driver_formulation1_obj3.py" beforeDir="false" afterPath="$PROJECT_DIR$/driver_formulation1_obj3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/driver_formulation1_obj4.py" beforeDir="false" afterPath="$PROJECT_DIR$/driver_formulation1_obj4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/driver_formulation2.py" beforeDir="false" afterPath="$PROJECT_DIR$/driver_formulation2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/formulationPartialCheck.py" beforeDir="false" afterPath="$PROJECT_DIR$/formulationPartialCheck.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post_processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/post_processing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/SLSQP.out" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/SLSQP.out" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/driver_scaling_report.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/driver_scaling_report.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/inputs.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/inputs.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/n2.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/n2.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/opt_report.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/opt_report.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/total_coloring.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/total_coloring.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation1_obj4/SLSQP.out" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1_obj4/SLSQP.out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation1_obj4/driver_scaling_report.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1_obj4/driver_scaling_report.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation1_obj4/inputs.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1_obj4/inputs.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation1_obj4/n2.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1_obj4/n2.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation1_obj4/total_coloring.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1_obj4/total_coloring.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation2/SLSQP.out" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation2/SLSQP.out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation2/driver_scaling_report.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation2/driver_scaling_report.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation2/inputs.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation2/inputs.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation2/n2.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation2/n2.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation2/opt_report.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation2/opt_report.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation2/total_coloring.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation2/total_coloring.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/formulationPartialCheck/inputs.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/formulationPartialCheck/inputs.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/formulationPartialCheck/n2.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/formulationPartialCheck/n2.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,8 +72,9 @@
     "Python.post_processing.executor": "Debug",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "Merging without__5b",
-    "last_opened_file_path": "/home/sruti/Documents/MDO/soft_landing_project",
+    "git-widget-placeholder": "Formulation2",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "//wsl$/Ubuntu/home/noahburns85/UbuntuDocuments/UMich/aero558/projects/soft_landing_project",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -60,10 +83,9 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.post_processing">
+  <component name="RunManager" selected="Python.driver_formulation1_obj3">
     <configuration name="classes_formulation1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="soft_landing_project" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -83,9 +105,8 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="driver_formulation1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="driver_formulation1_obj3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="soft_landing_project" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -96,7 +117,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/driver_formulation1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/driver_formulation1_obj3.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -107,7 +128,6 @@
     </configuration>
     <configuration name="driver_formulation1_obj4" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="soft_landing_project" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -129,7 +149,6 @@
     </configuration>
     <configuration name="driver_formulation2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="soft_landing_project" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -151,7 +170,6 @@
     </configuration>
     <configuration name="post_processing" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="soft_landing_project" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -173,11 +191,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.driver_formulation1_obj3" />
         <item itemvalue="Python.post_processing" />
         <item itemvalue="Python.driver_formulation2" />
         <item itemvalue="Python.classes_formulation1" />
         <item itemvalue="Python.driver_formulation1_obj4" />
-        <item itemvalue="Python.driver_formulation1" />
       </list>
     </recent_temporary>
   </component>

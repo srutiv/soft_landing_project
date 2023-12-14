@@ -2,7 +2,7 @@ import numpy as np
 import openmdao.api as om
 import dymos as dm
 from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
-from classes_formulation1 import LanderODE
+from classes_formulation import LanderODE
 import matplotlib.pyplot as plt
 import build_pyoptsparse
 import pyoptsparse
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     ivc_x = p.model.add_subsystem('ivc_xind', om.IndepVarComp(), promotes_outputs=['*'])
     ivc_x.add_output('x_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('x_tf_ind', units='m' )
+    p.model.add_design_var('x_tf_ind', units='m', lower=0 )
     # p.model.connect('x_tf_ind', 'traj.phase0.controls:x_tf_ind')
 
     ivc_y = p.model.add_subsystem('ivc_yind', om.IndepVarComp(), promotes_outputs=['*'])
