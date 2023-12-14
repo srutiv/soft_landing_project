@@ -122,9 +122,9 @@ class constraint5b(ExplicitComponent):
         self.declare_partials('constraint5b', 'x', rows=partial_range, cols=partial_range)
         self.declare_partials('constraint5b', 'y', rows=partial_range, cols=partial_range)
         self.declare_partials('constraint5b', 'z', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint5b', 'x_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint5b', 'y_tf_ind', rows=partial_range, cols=partial_range)
-        self.declare_partials('constraint5b', 'z_tf_ind', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint5b', 'xtf', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint5b', 'ytf', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint5b', 'ztf', rows=partial_range, cols=partial_range)
 
     def compute(self, inputs, outputs):
         """
@@ -134,9 +134,9 @@ class constraint5b(ExplicitComponent):
         x = inputs['x']
         y = inputs['y']
         z = inputs['z']
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        x_tf_ind = inputs['xtf']
+        y_tf_ind = inputs['ytf']
+        z_tf_ind = inputs['ztf']
         
         # Build final values as an array of length nn
         # nn = self.options['num_nodes']
@@ -166,9 +166,9 @@ class constraint5b(ExplicitComponent):
         x = inputs['x']
         y = inputs['y']
         z = inputs['z']
-        x_tf_ind = inputs['x_tf_ind']
-        y_tf_ind = inputs['y_tf_ind']
-        z_tf_ind = inputs['z_tf_ind']
+        x_tf_ind = inputs['xtf']
+        y_tf_ind = inputs['ytf']
+        z_tf_ind = inputs['ztf']
         
         # Build final values as an array of length nn
         nn = np.size(x)
@@ -194,11 +194,11 @@ class constraint5b(ExplicitComponent):
         E_norm = E_norm + epsilon
         
         # Intermediate partials
-        px = (-1/math.tan(gamma)) * np.ones(nn)
+        # px = (-1/math.tan(gamma)) * np.ones(nn)
         # py = (y-y_tf_ind)/E_norm
         # pz = (z-z_tf_ind)/E_norm
         
-        px[-1] = 0
+        # px[-1] = 0
         
         # Assign Partials
         # J['constraint5b', 'x'] = px
@@ -206,16 +206,14 @@ class constraint5b(ExplicitComponent):
         # J['constraint5b', 'z'] = (z-z_tf_ind)/E_norm
         
         
-        
-        
         J['constraint5b', 'x'] = -1/math.tan(gamma) * np.ones(nn)
-        J['constraint5b', 'x_tf_ind'] = 0#1/math.tan(gamma)
+        J['constraint5b', 'xtf'] = 1/math.tan(gamma) * np.ones(nn)
         
         J['constraint5b', 'y'] = (y-y_tf_ind)/E_norm
-        J['constraint5b', 'y_tf_ind'] = 0#-(y-y_tf_ind)/E_norm
+        J['constraint5b', 'ytf'] = -(y-y_tf_ind)/E_norm
 
         J['constraint5b', 'z'] = (z-z_tf_ind)/E_norm
-        J['constraint5b', 'z_tf_ind'] = 0#-(z-z_tf_ind)/E_norm
+        J['constraint5b', 'ztf'] = -(z-z_tf_ind)/E_norm
 
 class constraint18a(ExplicitComponent):
     """
@@ -419,11 +417,11 @@ class rtf(ExplicitComponent):
         self.add_output('ztf', val=np.ones(nn), desc='z at final node', units='m')
 
 
-        # Declare Partials of outputs wrt inputs
-        partial_range = np.arange(nn, dtype=int)
-        self.declare_partials('xtf', 'x', rows=partial_range, cols=partial_range)
-        self.declare_partials('ytf', 'y', rows=partial_range, cols=partial_range)
-        self.declare_partials('zft', 'z', rows=partial_range, cols=partial_range)
+        # # Declare Partials of outputs wrt inputs
+        # partial_range = np.arange(nn, dtype=int)
+        # self.declare_partials('xtf', 'x', rows=partial_range, cols=partial_range)
+        # self.declare_partials('ytf', 'y', rows=partial_range, cols=partial_range)
+        # self.declare_partials('ztf', 'z', rows=partial_range, cols=partial_range)
 
     def compute(self, inputs, outputs):
         """
@@ -437,26 +435,26 @@ class rtf(ExplicitComponent):
         nn = self.options['num_nodes']
 
         # Final Value
-        outputs["xft"] = x[-1]*np.ones(nn)
-        outputs["yft"] = y[-1]*np.ones(nn)
-        outputs["zft"] = z[-1]*np.ones(nn)
+        outputs["xtf"] = x[-1]*np.ones(nn)
+        outputs["ytf"] = y[-1]*np.ones(nn)
+        outputs["ztf"] = z[-1]*np.ones(nn)
         
-    def compute_partials(self, inputs, J):
-        # Unpack inputs
-        x = inputs['x']
-        y = inputs['y']
-        z = inputs['z']
+    # def compute_partials(self, inputs, J):
+    #     # Unpack inputs
+    #     x = inputs['x']
+    #     y = inputs['y']
+    #     z = inputs['z']
 
-        nn = self.options['num_nodes']
+    #     nn = self.options['num_nodes']
         
-        # Generate partial
-        ptf = np.zeros(nn)
-        ptf[-1] = 1
+    #     # Generate partial
+    #     ptf = np.zeros(nn)
+    #     ptf[-1] = 1
 
-        # Assign Partials
-        J['xtf', 'x'] = ptf
-        J['ytf', 'y'] = ptf
-        J['ztf', 'z'] = ptf
+    #     # Assign Partials
+    #     J['xtf', 'x'] = ptf
+    #     J['ytf', 'y'] = ptf
+    #     J['ztf', 'z'] = ptf
 
 class FlightDynamics1(ExplicitComponent):
     """
