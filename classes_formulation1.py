@@ -19,11 +19,14 @@ class LanderODE(Group):
         self.add_subsystem('obj3', subsys=objective3(num_nodes=nn),
                            promotes_inputs=['x', 'y', 'z',],
                            promotes_outputs=['obj3',])
+        self.add_subsystem('r_tf', subsys=rtf(num_nodes=nn),
+                           promotes_inputs=['x', 'y', 'z'],
+                           promotes_outputs=['xtf', 'ytf', 'ztf'])
         self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
                            promotes_inputs=['v_x', 'v_y', 'v_z',],
                            promotes_outputs=['constraint5a',])
         self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
-                           promotes_inputs=['x', 'y', 'z','x_tf_ind','y_tf_ind','z_tf_ind'],
+                           promotes_inputs=['x', 'y', 'z','xtf','ytf','ztf'],
                            promotes_outputs=['constraint5b',])
         self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
@@ -83,6 +86,9 @@ class constraint5a(ExplicitComponent):
         
         # Divide by zero regulation epsilon
         epsilon = 1e-10
+        
+        # intermediate Test 
+        # JVx = v_x / (v_norm + epsilon)
 
         # Assign Partials
         # Element wise ???
@@ -104,9 +110,9 @@ class constraint5b(ExplicitComponent):
         self.add_input('x', val=np.ones(nn), desc='x position', units='m')
         self.add_input('y', val=np.ones(nn), desc='y position', units='m')
         self.add_input('z', val=np.ones(nn), desc='z position', units='m')
-        self.add_input('x_tf_ind', val=np.ones(nn), desc='x_tf position', units='m')
-        self.add_input('y_tf_ind', val=np.ones(nn), desc='y_tf position', units='m')
-        self.add_input('z_tf_ind', val=np.ones(nn), desc='z_tf position', units='m')
+        self.add_input('xtf', val=np.ones(nn), desc='x_tf position', units='m')
+        self.add_input('ytf', val=np.ones(nn), desc='y_tf position', units='m')
+        self.add_input('ztf', val=np.ones(nn), desc='z_tf position', units='m')
 
         # Derivatives of the equations of motions
         self.add_output('constraint5b', val=np.ones(nn), desc='cone constraint', units='m/s')
@@ -393,6 +399,64 @@ class objective3(ExplicitComponent):
         J['obj3', 'x'] = 0
         J['obj3', 'y'] = (y-q[0])/norm_val
         J['obj3', 'z'] = (z-q[1])/norm_val
+
+class rtf(ExplicitComponent):
+    """
+    """
+
+    def initialize(self):
+        self.options.declare('num_nodes', types=int)
+
+    def setup(self):
+        nn = self.options['num_nodes']
+        self.add_input('x', val=np.ones(nn), desc='x position', units='m')
+        self.add_input('y', val=np.ones(nn), desc='y position', units='m')
+        self.add_input('z', val=np.ones(nn), desc='z position', units='m')
+
+        # Derivatives of the equations of motions
+        self.add_output('xtf', val=np.ones(nn), desc='x at final node', units='m')
+        self.add_output('ytf', val=np.ones(nn), desc='y at final node', units='m')
+        self.add_output('ztf', val=np.ones(nn), desc='z at final node', units='m')
+
+
+        # Declare Partials of outputs wrt inputs
+        partial_range = np.arange(nn, dtype=int)
+        self.declare_partials('xtf', 'x', rows=partial_range, cols=partial_range)
+        self.declare_partials('ytf', 'y', rows=partial_range, cols=partial_range)
+        self.declare_partials('zft', 'z', rows=partial_range, cols=partial_range)
+
+    def compute(self, inputs, outputs):
+        """
+        dynamics function: lander modeled as a lumped parameter mass with Tc for control
+        """
+        # Unpack inputs
+        x = inputs['x']
+        y = inputs['y']
+        z = inputs['z']
+        
+        nn = self.options['num_nodes']
+
+        # Final Value
+        outputs["xft"] = x[-1]*np.ones(nn)
+        outputs["yft"] = y[-1]*np.ones(nn)
+        outputs["zft"] = z[-1]*np.ones(nn)
+        
+    def compute_partials(self, inputs, J):
+        # Unpack inputs
+        x = inputs['x']
+        y = inputs['y']
+        z = inputs['z']
+
+        nn = self.options['num_nodes']
+        
+        # Generate partial
+        ptf = np.zeros(nn)
+        ptf[-1] = 1
+
+        # Assign Partials
+        J['xtf', 'x'] = ptf
+        J['ytf', 'y'] = ptf
+        J['ztf', 'z'] = ptf
 
 class FlightDynamics1(ExplicitComponent):
     """
