@@ -2,11 +2,11 @@ import numpy as np
 import openmdao.api as om
 import dymos as dm
 from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
-
 from classes_formulation1 import LanderODE
 import matplotlib.pyplot as plt
 import build_pyoptsparse
 import pyoptsparse
+import pickle
 
 if __name__ == '__main__':
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     # Instantiate the problem, add the driver, and allow it to use coloring
     p = om.Problem(model=om.Group())
-    p.driver = om.pyOptSparseDriver() #cursed
+    p.driver = om.pyOptSparseDriver()
     #p.driver = ScipyOptimizeDriver()
     p.driver.declare_coloring()
     p.driver.options['optimizer'] = 'SLSQP'
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     traj = p.model.add_subsystem('traj', dm.Trajectory())
     phase0 = traj.add_phase('phase0',
                             dm.Phase(ode_class=LanderODE,
-                            transcription=dm.Radau(num_segments=15, order=3)))
+                            transcription=dm.Radau(num_segments=20, order=3)))
     tx = phase0.options['transcription']
     phase0.set_time_options(fix_initial=True, units='s', duration_bounds=(10, 150)) #maximum duration of simulation?
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     phase0.add_state('v_z', fix_initial=True, fix_final=True, units='m/s',
                      rate_source='v_zdot')
     phase0.add_state('m', fix_initial=True, fix_final=False, units='kg',
-                     rate_source='mdot', lower=0)
+                     rate_source='mdot', lower=m0-mf)
 
     ## add states related to design variables
     phase0.add_control('Gamma', units='N', opt=True, lower=4800, upper=19200, )  # can add upper and lower limits if desired
@@ -173,15 +173,24 @@ if __name__ == '__main__':
     sol = om.CaseReader('dymos_solution.db').get_case('final')
     sim = om.CaseReader('dymos_simulation.db').get_case('final')
 
-    """ PLOT """
-    plot_results([('traj.phase0.timeseries.time', 'traj.phase0.timeseries.alpha',
-                   'time (s)', 'alpha (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.beta',
-                   'time (s)', 'beta (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.theta',
-                   'time (s)', 'theta (rad)'),
-                  ('traj.phase0.timeseries.time', 'traj.phase0.timeseries.q',
-                   'time (s)', 'q (Btu/ft**2/s)')], title='Reentry Solution', p_sol=sol,
-                 p_sim=sim)
+    # with open('prob3_dataset.pkl', 'wb') as db_file:
+    #     pickle.dump([sol3, sim3], file=db_file)
 
-    plt.show()
+    time = sol.get_val("traj.phase0.timeseries.time")
+    iters = np.floor(np.linspace(0, len(time), len(time)))
+    x = sol.get_val("traj.phase0.timeseries.x")
+    y = sol.get_val("traj.phase0.timeseries.y")
+    z = sol.get_val("traj.phase0.timeseries.z")
+    v_x = sol.get_val("traj.phase0.timeseries.v_x")
+    v_y = sol.get_val("traj.phase0.timeseries.v_y")
+    v_z = sol.get_val("traj.phase0.timeseries.v_z")
+    T_x = sol.get_val("traj.phase0.timeseries.T_x")
+    T_y = sol.get_val("traj.phase0.timeseries.T_y")
+    T_z = sol.get_val("traj.phase0.timeseries.T_z")
+    Gamma = sol.get_val("traj.phase0.timeseries.Gamma")
+    mass = sol.get_val("traj.phase0.timeseries.m")
+    obj3 = sol.get_val("traj.phase0.rhs_all.obj3")
+
+    # with open('prob3_nparrays.pkl', 'wb') as db_file:
+    #     pickle.dump([time, iters, x, y, z, v_x, v_y, v_z,
+    #                  T_x, T_y, T_z, Gamma, mass, obj3], file=db_file)

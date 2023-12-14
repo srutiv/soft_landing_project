@@ -17,7 +17,7 @@ def plot_trajectory(time, x):
     axs1[2].set_xlabel('Time')
     axs1[2].grid()
 
-    # Create Figure 2: xdot, ydot, zdot vs time
+    # Create Figure 2: xdot, ydot, zdot vs time 
     fig2, axs2 = plt.subplots(3, 1, figsize=(8, 10))
     axs2[0].plot(time, x[:, 3], label='xdot')
     axs2[0].set_ylabel('xdot')
@@ -44,7 +44,7 @@ def S_func(omega):
 def A_func(omega):
     A = np.zeros((6,6))
     A[0:3, 3:6] = np.eye(3)
-    A[3:6, 0:3] = -S_func(omega) ** 2
+    A[3:6, 0:3] = -np.dot(S_func(omega),S_func(omega))
     A[3:6, 3:6] = -2 * S_func(omega)
     #A = np.array([[np.zeros((3, 3)), np.eye(3)], [-S_func(omega) ** 2, -2 * S_func(omega)]])  # 6x6
     return A
