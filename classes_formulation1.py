@@ -5,6 +5,38 @@ from openmdao.api import Group
 from openmdao.api import ExplicitComponent, Problem
 from convex_functions import A_func, S_func
 
+
+class LanderODE_obj4(Group):
+
+    def initialize(self):
+        self.options.declare('num_nodes', types=int)
+
+    def setup(self):
+        nn = self.options['num_nodes']
+        self.add_subsystem('eom', subsys=FlightDynamics1(num_nodes=nn),
+                           promotes_inputs=['x', 'y', 'z', 'v_x', 'v_y', 'v_z', 'm', 'T_x',
+                                            'T_y', 'T_z', 'Gamma', ],
+                           promotes_outputs=['xdot', 'ydot', 'zdot', 'v_xdot', 'v_ydot', 'v_zdot', 'mdot'])
+        self.add_subsystem('obj4', subsys=objective4(num_nodes=nn),
+                           promotes_inputs=['Gamma', ],
+                           promotes_outputs=['obj4', ])
+        self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
+                           promotes_inputs=['v_x', 'v_y', 'v_z', ],
+                           promotes_outputs=['constraint5a', ])
+        self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
+                           promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_outputs=['constraint5b', ])
+        self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
+                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+                           promotes_outputs=['constraint18a', ])
+        self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
+                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+                           promotes_outputs=['constraint19', ])
+        self.add_subsystem('comp20', subsys=constraint20(num_nodes=nn),
+                           promotes_inputs=['x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_outputs=['constraint20', ])
+
+
 class LanderODE(Group):
 
     def initialize(self):
@@ -14,23 +46,55 @@ class LanderODE(Group):
         nn = self.options['num_nodes']
         self.add_subsystem('eom', subsys=FlightDynamics1(num_nodes=nn),
                            promotes_inputs=['x', 'y', 'z', 'v_x', 'v_y', 'v_z', 'm', 'T_x',
-                                            'T_y', 'T_z', 'Gamma',],
+                                            'T_y', 'T_z', 'Gamma', ],
                            promotes_outputs=['xdot', 'ydot', 'zdot', 'v_xdot', 'v_ydot', 'v_zdot', 'mdot'])
         self.add_subsystem('obj3', subsys=objective3(num_nodes=nn),
-                           promotes_inputs=['x', 'y', 'z',],
-                           promotes_outputs=['obj3',])
+                           promotes_inputs=['x', 'y', 'z', ],
+                           promotes_outputs=['obj3', ])
         self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
-                           promotes_inputs=['v_x', 'v_y', 'v_z',],
-                           promotes_outputs=['constraint5a',])
+                           promotes_inputs=['v_x', 'v_y', 'v_z', ],
+                           promotes_outputs=['constraint5a', ])
         self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
                            promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
-                           promotes_outputs=['constraint5b',])
+                           promotes_outputs=['constraint5b', ])
         self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
-                           promotes_outputs=['constraint18a',])
+                           promotes_outputs=['constraint18a', ])
         self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
                            promotes_outputs=['constraint19', ])
+
+
+class LanderODE_form2(Group):
+    #evaluate obj4 with obj3 as a constraint
+
+    def initialize(self):
+        self.options.declare('num_nodes', types=int)
+
+    def setup(self):
+        nn = self.options['num_nodes']
+        self.add_subsystem('eom', subsys=FlightDynamics1(num_nodes=nn),
+                           promotes_inputs=['x', 'y', 'z', 'v_x', 'v_y', 'v_z', 'm', 'T_x',
+                                            'T_y', 'T_z', 'Gamma', ],
+                           promotes_outputs=['xdot', 'ydot', 'zdot', 'v_xdot', 'v_ydot', 'v_zdot', 'mdot'])
+        self.add_subsystem('obj4', subsys=objective4(num_nodes=nn),
+                           promotes_inputs=['Gamma', ],
+                           promotes_outputs=['obj4', ])
+        self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
+                           promotes_inputs=['v_x', 'v_y', 'v_z', ],
+                           promotes_outputs=['constraint5a', ])
+        self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
+                           promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_outputs=['constraint5b', ])
+        self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
+                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+                           promotes_outputs=['constraint18a', ])
+        self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
+                           promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
+                           promotes_outputs=['constraint19', ])
+        self.add_subsystem('comp20', subsys=constraint20_form2mod(num_nodes=nn), #modified using obj3 as a constraint
+                           promotes_inputs=['x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+                           promotes_outputs=['constraint20', ])
 
 class constraint5a(ExplicitComponent):
     """
@@ -80,7 +144,7 @@ class constraint5a(ExplicitComponent):
         v_z = inputs['v_z']
 
         v_norm = np.linalg.norm([v_x, v_y, v_z], axis=0)
-        
+
         # Divide by zero regulation epsilon
         epsilon = 1e-10
 
@@ -89,6 +153,7 @@ class constraint5a(ExplicitComponent):
         J['constraint5a', 'v_x'] = v_x / (v_norm + epsilon)
         J['constraint5a', 'v_y'] = v_y / (v_norm + epsilon)
         J['constraint5a', 'v_z'] = v_z / (v_norm + epsilon)
+
 
 class constraint5b(ExplicitComponent):
     """
@@ -135,8 +200,8 @@ class constraint5b(ExplicitComponent):
         r = np.array([x, y, z])
         r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
 
-        #constants
-        gamma = np.pi/4
+        # constants
+        gamma = np.pi / 4
         E = np.zeros((2, 3))
         E[0, :] = np.array([0, 1, 0])
         E[1, :] = np.array([0, 0, 1])
@@ -144,7 +209,7 @@ class constraint5b(ExplicitComponent):
         c = e1 / math.tan(gamma)  # glide slope direction
 
         t2Test = np.dot(c.T, (r - r_tf))
-        constraint5b = np.linalg.norm(np.dot(E, r - r_tf), axis = 0) - np.dot(c.T, (r - r_tf))
+        constraint5b = np.linalg.norm(np.dot(E, r - r_tf), axis=0) - np.dot(c.T, (r - r_tf))
 
         # constraint outputs
         outputs["constraint5b"] = constraint5b
@@ -170,25 +235,26 @@ class constraint5b(ExplicitComponent):
         c = e1 / math.tan(gamma)  # glide slope direction
 
         E_norm = np.linalg.norm(np.dot(E, r - r_tf), axis=0)
-        
+
         # Divide by zero regulation epsilon
         epsilon = 1e-10
-        E_norm = E_norm+epsilon
-        
+        E_norm = E_norm + epsilon
+
         # Intermediate values
-        Jx = -1/math.tan(gamma)
-        Jy = (y-y_tf_ind)/E_norm
-        Jz = (z-z_tf_ind)/E_norm
-        
+        Jx = -1 / math.tan(gamma)
+        Jy = (y - y_tf_ind) / E_norm
+        Jz = (z - z_tf_ind) / E_norm
+
         # Assign Partials
-        J['constraint5b', 'x'] = -1/math.tan(gamma)
-        J['constraint5b', 'x_tf_ind'] = 1/math.tan(gamma)
+        J['constraint5b', 'x'] = -1 / math.tan(gamma)
+        J['constraint5b', 'x_tf_ind'] = 1 / math.tan(gamma)
 
-        J['constraint5b', 'y'] = (y-y_tf_ind)/E_norm
-        J['constraint5b', 'y_tf_ind'] = -(y-y_tf_ind)/E_norm
+        J['constraint5b', 'y'] = (y - y_tf_ind) / E_norm
+        J['constraint5b', 'y_tf_ind'] = -(y - y_tf_ind) / E_norm
 
-        J['constraint5b', 'z'] = (z-z_tf_ind)/E_norm
-        J['constraint5b', 'z_tf_ind'] = -(z-z_tf_ind)/E_norm
+        J['constraint5b', 'z'] = (z - z_tf_ind) / E_norm
+        J['constraint5b', 'z_tf_ind'] = -(z - z_tf_ind) / E_norm
+
 
 class constraint18a(ExplicitComponent):
     """
@@ -239,16 +305,17 @@ class constraint18a(ExplicitComponent):
         Gamma = inputs['Gamma']
 
         T_norm = np.linalg.norm([T_x, T_y, T_z], axis=0)
-        
+
         # Divide by zero regulation epsilon
         epsilon = 1e-10
-        T_norm = T_norm+epsilon
+        T_norm = T_norm + epsilon
 
         # Assign Partials
-        J['constraint18a', 'T_x'] = -T_x/T_norm
-        J['constraint18a', 'T_y'] = -T_y/T_norm
-        J['constraint18a', 'T_z'] = -T_z/T_norm
+        J['constraint18a', 'T_x'] = -T_x / T_norm
+        J['constraint18a', 'T_y'] = -T_y / T_norm
+        J['constraint18a', 'T_z'] = -T_z / T_norm
         J['constraint18a', 'Gamma'] = 1
+
 
 class constraint19(ExplicitComponent):
     """
@@ -288,7 +355,7 @@ class constraint19(ExplicitComponent):
 
         # Constants
         nhat = np.array([1, 0, 0])  # normal direction
-        theta = math.pi/4 #thrust pointing constraint angle
+        theta = math.pi / 4  # thrust pointing constraint angle
 
         constraint19 = np.dot(nhat.T, np.array([T_x, T_y, T_z])) - math.cos(theta) * Gamma
 
@@ -310,6 +377,151 @@ class constraint19(ExplicitComponent):
         J['constraint19', 'T_y'] = n[1]
         J['constraint19', 'T_z'] = n[2]
         J['constraint19', 'Gamma'] = -np.cos(theta)
+
+
+class constraint20(ExplicitComponent):
+    """
+    """
+
+    def initialize(self):
+        self.options.declare('num_nodes', types=int)
+
+    def setup(self):
+        nn = self.options['num_nodes']
+
+        # Equations of Motions
+        self.add_input('x_tf_ind', val=np.ones(nn), desc='x_tf position', units='m')
+        self.add_input('y_tf_ind', val=np.ones(nn), desc='y_tf position', units='m')
+        self.add_input('z_tf_ind', val=np.ones(nn), desc='z_tf position', units='m')
+
+        # Derivatives of the equations of motions
+        self.add_output('constraint20', val=np.ones(nn), desc='landing error', units='m')
+
+        # Declare Partials of outputs wrt inputs
+        partial_range = np.arange(nn, dtype=int)
+        self.declare_partials('constraint20', 'x_tf_ind', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'y_tf_ind', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'z_tf_ind', rows=partial_range, cols=partial_range)
+
+    def compute(self, inputs, outputs):
+        """
+        dynamics function: lander modeled as a lumped parameter mass with Tc for control
+        """
+        # Unpack inputs
+        x_tf_ind = inputs['x_tf_ind']
+        y_tf_ind = inputs['y_tf_ind']
+        z_tf_ind = inputs['z_tf_ind']
+
+        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+
+        # constants
+        dp3 = np.array([0.9999994, 1.0000002])
+        q = np.array([0, 0])  # m, target landing site
+        E = np.zeros((2, 3))
+        E[0, :] = np.array([0, 1, 0])
+        E[1, :] = np.array([0, 0, 1])
+
+        constraint20 = np.linalg.norm(np.dot(E, r_tf), axis=0) - np.linalg.norm(dp3 - q)
+
+        # constraint outputs
+        outputs["constraint20"] = constraint20
+
+    def compute_partials(self, inputs, J):
+        # Unpack inputs
+        x_tf_ind = inputs['x_tf_ind']
+        y_tf_ind = inputs['y_tf_ind']
+        z_tf_ind = inputs['z_tf_ind']
+
+        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+
+        # constants
+        E = np.zeros((2, 3))
+        E[0, :] = np.array([0, 1, 0])
+        E[1, :] = np.array([0, 0, 1])
+        q = np.array([0, 0])  # m, target landing site
+
+        the_norm = np.linalg.norm(np.dot(E, r_tf)-q, axis=0)
+
+        # Divide by zero regulation epsilon
+        epsilon = 1e-10
+        the_norm = the_norm + epsilon
+
+        # Assign Partials
+        J['constraint20', 'x_tf_ind'] = epsilon #basically 0
+        J['constraint20', 'y_tf_ind'] = (y_tf_ind - q[0]) / the_norm
+        J['constraint20', 'z_tf_ind'] = (z_tf_ind - q[1]) / the_norm
+
+class constraint20_form2mod(ExplicitComponent):
+    """
+    """
+
+    def initialize(self):
+        self.options.declare('num_nodes', types=int)
+
+    def setup(self):
+        nn = self.options['num_nodes']
+
+        # Equations of Motions
+        self.add_input('x_tf_ind', val=np.ones(nn), desc='x_tf position', units='m')
+        self.add_input('y_tf_ind', val=np.ones(nn), desc='y_tf position', units='m')
+        self.add_input('z_tf_ind', val=np.ones(nn), desc='z_tf position', units='m')
+
+        # Derivatives of the equations of motions
+        self.add_output('constraint20', val=np.ones(nn), desc='landing error', units='m')
+
+        # Declare Partials of outputs wrt inputs
+        partial_range = np.arange(nn, dtype=int)
+        self.declare_partials('constraint20', 'x_tf_ind', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'y_tf_ind', rows=partial_range, cols=partial_range)
+        self.declare_partials('constraint20', 'z_tf_ind', rows=partial_range, cols=partial_range)
+
+    def compute(self, inputs, outputs):
+        """
+        dynamics function: lander modeled as a lumped parameter mass with Tc for control
+        """
+        # Unpack inputs
+        x_tf_ind = inputs['x_tf_ind']
+        y_tf_ind = inputs['y_tf_ind']
+        z_tf_ind = inputs['z_tf_ind']
+
+        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+
+        # constants
+        q = np.array([0, 0])  # m, target landing site
+        E = np.zeros((2, 3))
+        E[0, :] = np.array([0, 1, 0])
+        E[1, :] = np.array([0, 0, 1])
+
+        constraint20 = np.linalg.norm(np.dot(E, r_tf) - q[:, np.newaxis], axis=0) #obj3 as a constraint
+        #constraint20 = np.linalg.norm(np.dot(E, r_tf), axis=0) - np.linalg.norm(dp3 - q)
+
+        # constraint outputs
+        outputs["constraint20"] = constraint20
+
+    def compute_partials(self, inputs, J):
+        # Unpack inputs
+        x_tf_ind = inputs['x_tf_ind']
+        y_tf_ind = inputs['y_tf_ind']
+        z_tf_ind = inputs['z_tf_ind']
+
+        r_tf = np.array([x_tf_ind, y_tf_ind, z_tf_ind])
+
+        # constants
+        E = np.zeros((2, 3))
+        E[0, :] = np.array([0, 1, 0])
+        E[1, :] = np.array([0, 0, 1])
+        q = np.array([0, 0])  # m, target landing site
+
+        the_norm = np.linalg.norm(np.dot(E, r_tf)-q, axis=0)
+
+        # Divide by zero regulation epsilon
+        epsilon = 1e-10
+        the_norm = the_norm + epsilon
+
+        # Assign Partials
+        J['constraint20', 'x_tf_ind'] = epsilon #basically 0
+        J['constraint20', 'y_tf_ind'] = (y_tf_ind - q[0]) / the_norm
+        J['constraint20', 'z_tf_ind'] = (z_tf_ind - q[1]) / the_norm
 
 class objective3(ExplicitComponent):
     """
@@ -363,15 +575,54 @@ class objective3(ExplicitComponent):
 
         q = np.array([0, 0])  # m, target landing site
         norm_val = np.linalg.norm(np.array([y, z]) - q[:, np.newaxis], axis=0)
-        
+
         # Divide by zero regulation epsilon
         epsilon = 1e-10
         norm_val = norm_val + epsilon
 
         # Assign Partials
         J['obj3', 'x'] = 0
-        J['obj3', 'y'] = (y-q[0])/norm_val
-        J['obj3', 'z'] = (z-q[1])/norm_val
+        J['obj3', 'y'] = (y - q[0]) / norm_val
+        J['obj3', 'z'] = (z - q[1]) / norm_val
+
+
+class objective4(ExplicitComponent):
+    """
+    """
+
+    def initialize(self):
+        self.options.declare('num_nodes', types=int)
+
+    def setup(self):
+        nn = self.options['num_nodes']
+        self.add_input('Gamma', val=np.ones(nn), desc='thrust bound', units='N')
+
+        # Derivatives of the equations of motions
+        self.add_output('obj4', val=np.ones(nn), desc='fuel consumption', units='m')
+
+        # Declare Partials of outputs wrt inputs
+        partial_range = np.arange(nn, dtype=int)
+        self.declare_partials('obj4', 'Gamma', rows=partial_range, cols=partial_range)
+
+    def compute(self, inputs, outputs):
+        """
+        dynamics function: lander modeled as a lumped parameter mass with Tc for control
+        """
+        # Unpack inputs
+        Gamma = inputs['Gamma']
+
+        obj4 = np.sum(Gamma, axis=0)  # integrate Gamma across time
+
+        # constraint outputs
+        outputs["obj4"] = obj4
+
+    def compute_partials(self, inputs, J):
+        # Unpack inputs
+        Gamma = inputs['Gamma']
+
+        # Assign Partials
+        J['obj4', 'Gamma'] = Gamma
+
 
 class FlightDynamics1(ExplicitComponent):
     """
@@ -387,7 +638,7 @@ class FlightDynamics1(ExplicitComponent):
 
     def setup(self):
         nn = self.options['num_nodes']
-        
+
         # Equations of Motions
         self.add_input('x', val=np.ones(nn), desc='x position', units='m')
         self.add_input('y', val=np.ones(nn), desc='y position', units='m')
@@ -469,7 +720,7 @@ class FlightDynamics1(ExplicitComponent):
 
         # Constants
         alpha = 5e-4  # s/m
-        #g = np.array([[-3.71], [0], [0]])
+        # g = np.array([[-3.71], [0], [0]])
         g = np.array([-3.71, 0, 0])
         omega = np.array([2.53e-5, 0, 6.62e-5])
         gamma = math.pi / 4  # slide slope angle (0, pi/2)
@@ -484,10 +735,9 @@ class FlightDynamics1(ExplicitComponent):
         c = e1 / math.tan(gamma)  # glide slope direction
 
         # Compute Outputs using matrix math
-        #XDOT = np.dot(A, X) + np.dot(B, (np.add(g, Tc / m)))
+        # XDOT = np.dot(A, X) + np.dot(B, (np.add(g, Tc / m)))
         XDOT = np.dot(A, X) + np.dot(B, g[:, np.newaxis] + (Tc / m))
         mdot = -1 * alpha * Gamma
-
 
         # Assign Outputs
         outputs["xdot"] = XDOT[0, :]
@@ -530,29 +780,29 @@ class FlightDynamics1(ExplicitComponent):
 
         # Compute Partials using matrix math
         pXDOT_pX = A
-        #pXDOT_pT = B/m
-        pXDOT_pT = B_reshape / m_reshape #6x3xnum nodes
-        #pXDOT_pm = -(1 / m ** 2) * np.dot(B_reshape, Tc) #6x1x6
-        
+        # pXDOT_pT = B/m
+        pXDOT_pT = B_reshape / m_reshape  # 6x3xnum nodes
+        # pXDOT_pm = -(1 / m ** 2) * np.dot(B_reshape, Tc) #6x1x6
+
         oneOverM = -(1 / m ** 2)
         TB = np.tensordot(B_reshape, Tc, axes=([1], [0]))
-        pXDOT_pm = -(1 / m ** 2) * np.tensordot(B_reshape, Tc, axes=([1], [0])) #tensor dot product
-        #pXDOT_pm = np.swapaxes(pXDOT_pm, 1, 2)
+        pXDOT_pm = -(1 / m ** 2) * np.tensordot(B_reshape, Tc, axes=([1], [0]))  # tensor dot product
+        # pXDOT_pm = np.swapaxes(pXDOT_pm, 1, 2)
         # pXDOT_pm = np.squeeze(pXDOT_pm) #squeeze unnecesasry dims
         pmdot_pGamma = -1 * alpha
 
         # Assign Partials
-        #J['xdot', 'v_x'] = pXDOT_pX[0, 3]
+        # J['xdot', 'v_x'] = pXDOT_pX[0, 3]
         J['xdot', 'v_x'] = np.tile(pXDOT_pX[0, 3, np.newaxis], (1, 1, num_nodes))
 
-        #J['ydot', 'v_y'] = pXDOT_pX[1, 4]
+        # J['ydot', 'v_y'] = pXDOT_pX[1, 4]
         J['ydot', 'v_y'] = np.tile(pXDOT_pX[1, 4, np.newaxis], (1, 1, num_nodes))
 
-        #J['zdot', 'v_z'] = pXDOT_pX[2, 5]
+        # J['zdot', 'v_z'] = pXDOT_pX[2, 5]
         J['zdot', 'v_z'] = np.tile(pXDOT_pX[2, 5, np.newaxis], (1, 1, num_nodes))
-        
+
         # J['v_xdot', 'x'] = pXDOT_pX[3, 0]
-        J['v_xdot', 'x'] = np.tile(pXDOT_pX[3, 0, np.newaxis], (1, 1, num_nodes))        
+        J['v_xdot', 'x'] = np.tile(pXDOT_pX[3, 0, np.newaxis], (1, 1, num_nodes))
         # J['v_xdot', 'y'] = pXDOT_pX[3, 1]
         J['v_xdot', 'y'] = np.tile(pXDOT_pX[3, 1, np.newaxis], (1, 1, num_nodes))
         # J['v_xdot', 'z'] = pXDOT_pX[3, 2]
@@ -561,7 +811,7 @@ class FlightDynamics1(ExplicitComponent):
         J['v_xdot', 'v_y'] = np.tile(pXDOT_pX[3, 4, np.newaxis], (1, 1, num_nodes))
         # J['v_xdot', 'v_z'] = pXDOT_pX[3, 5]
         J['v_xdot', 'v_z'] = np.tile(pXDOT_pX[3, 5, np.newaxis], (1, 1, num_nodes))
-        J['v_xdot', 'T_x'] = pXDOT_pT[3, 0, :] #60,
+        J['v_xdot', 'T_x'] = pXDOT_pT[3, 0, :]  # 60,
         J['v_xdot', 'm'] = pXDOT_pm[3, 0, 0, :]
 
         # J['v_ydot', 'x'] = pXDOT_pX[4, 0]
@@ -575,7 +825,7 @@ class FlightDynamics1(ExplicitComponent):
         # J['v_ydot', 'v_z'] = pXDOT_pX[4, 5]
         J['v_ydot', 'v_z'] = np.tile(pXDOT_pX[4, 5, np.newaxis], (1, 1, num_nodes))
         J['v_ydot', 'T_y'] = pXDOT_pT[4, 1, :]
-        #J['v_ydot', 'm'] = pXDOT_pm[4, 0]
+        # J['v_ydot', 'm'] = pXDOT_pm[4, 0]
         J['v_ydot', 'm'] = pXDOT_pm[4, 0, 0, :]
 
         # J['v_zdot', 'x'] = pXDOT_pX[5, 0]
@@ -589,7 +839,7 @@ class FlightDynamics1(ExplicitComponent):
         # J['v_zdot', 'v_y'] = pXDOT_pX[5, 4]
         J['v_zdot', 'v_y'] = np.tile(pXDOT_pX[5, 4, np.newaxis], (1, 1, num_nodes))
         J['v_zdot', 'T_z'] = pXDOT_pT[5, 2, :]
-        #J['v_zdot', 'm'] = pXDOT_pm[5, 0]
+        # J['v_zdot', 'm'] = pXDOT_pm[5, 0]
         J['v_zdot', 'm'] = pXDOT_pm[5, 0, 0, :]
 
         J['mdot', 'Gamma'] = pmdot_pGamma
