@@ -5,16 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab2e5813-30e3-4bee-a1f5-0283f4c6e218" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/driver_formulation1_obj4.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/post_processing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classes_formulation1.py" beforeDir="false" afterPath="$PROJECT_DIR$/classes_formulation1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coloring_files/total_coloring.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/coloring_files/total_coloring.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/soft_landing_project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/soft_landing_project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/driver_formulation1.py" beforeDir="false" afterPath="$PROJECT_DIR$/driver_formulation1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/driver_formulation2.py" beforeDir="false" afterPath="$PROJECT_DIR$/driver_formulation2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dymos_simulation.db" beforeDir="false" afterPath="$PROJECT_DIR$/dymos_simulation.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dymos_solution.db" beforeDir="false" afterPath="$PROJECT_DIR$/dymos_solution.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/openmdao_checks.out" beforeDir="false" afterPath="$PROJECT_DIR$/openmdao_checks.out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/coloring.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/SLSQP.out" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/SLSQP.out" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/driver_scaling_report.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/driver_scaling_report.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/inputs.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/inputs.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reports/driver_formulation1/n2.html" beforeDir="false" afterPath="$PROJECT_DIR$/reports/driver_formulation1/n2.html" afterDir="false" />
@@ -53,7 +50,7 @@
     "Python.post_processing.executor": "Debug",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "without__5b",
+    "git-widget-placeholder": "Merging without__5b",
     "last_opened_file_path": "/home/sruti/Documents/MDO/soft_landing_project",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
@@ -205,11 +202,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/post_processing.py</url>
-          <line>74</line>
-          <option name="timeStamp" value="21" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/post_processing.py</url>
           <line>53</line>

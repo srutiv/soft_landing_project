@@ -13,6 +13,7 @@
 IOUT =  60
 
 
+<<<<<<< HEAD
      ITER =    1     OBJ =  0.20356944E+03
      ITER =    2     OBJ =  0.33933390E+03
      ITER =    3     OBJ =  0.13632340E+03
@@ -117,3 +118,8 @@ IOUT =  60
      ITER =  106     OBJ =  0.14142133E+01
         NUMBER OF FUNC-CALLS:  NFUNC = 644
         NUMBER OF GRAD-CALLS:  NGRAD = 103
+=======
+     ITER =    1     OBJ =             NaN
+        NUMBER OF FUNC-CALLS:  NFUNC =  12
+        NUMBER OF GRAD-CALLS:  NGRAD =   2
+>>>>>>> main
