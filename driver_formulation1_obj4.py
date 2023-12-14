@@ -3,7 +3,7 @@ import openmdao.api as om
 import dymos as dm
 from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
 
-from classes_formulation1 import LanderODE_obj4
+from classes_formulation import LanderODE_obj4
 import matplotlib.pyplot as plt
 import build_pyoptsparse
 import pyoptsparse

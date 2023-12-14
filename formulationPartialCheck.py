@@ -1,6 +1,6 @@
 import numpy as np
 import openmdao.api as om
-from classes_formulation1 import LanderODE
+from classes_formulation import LanderODE
 
 num_nodes = 2
 
