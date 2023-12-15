@@ -80,6 +80,7 @@ if __name__ == '__main__':
                      rate_source='v_zdot')
     phase0.add_state('m', fix_initial=True, fix_final=False, units='kg',
                      rate_source='mdot', lower=m0-mf)
+    phase0.add_state('obj4', fix_initial=True, fix_final=False) # rate source obtained in ode
 
     ## add states related to design variables
     phase0.add_control('Gamma', units='N', opt=True, lower=4800, upper=19200, )  # can add upper and lower limits if desired
@@ -92,7 +93,7 @@ if __name__ == '__main__':
     # for constraining expressions, the derivatives are calculated with complex step not analytic expressions
     phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
     phase0.add_boundary_constraint('res7b = m - 1700', loc='final', lower=0)
-    #phase0.add_boundary_constraint("constraint20", loc="final", equals=0) #check this
+    phase0.add_boundary_constraint("constraint20", loc="final", upper=0) #check this
 
     ## Add Path constraints
     phase0.add_path_constraint("constraint5a", lower=0)
@@ -120,7 +121,8 @@ if __name__ == '__main__':
     p.set_val('traj.phase0.controls:T_y', phase0.interp('T_y', [0.5*Tmax, 0.5*Tmax]), units='N')
     p.set_val('traj.phase0.controls:T_z', phase0.interp('T_z', [0.5*Tmax, 0.5*Tmax]), units='N')
     p.set_val('traj.phase0.controls:Gamma', phase0.interp('Gamma', [0.7 * Tmax, 0.7 * Tmax]), units='N')
-
+    p.set_val('traj.phase0.states:obj4', phase0.interp('obj4', [0, 10000])) 
+    
     print("check1")
     objectives = phase0.get_objectives()
     print(objectives)
@@ -137,8 +139,8 @@ if __name__ == '__main__':
     sol = om.CaseReader('dymos_solution.db').get_case('final')
     sim = om.CaseReader('dymos_simulation.db').get_case('final')
 
-    # with open('prob4_dataset.pkl', 'wb') as db_file:
-    #     pickle.dump([sol, sim], file=db_file)
+    with open('prob4_dataset.pkl', 'wb') as db_file:
+        pickle.dump([sol, sim], file=db_file)
 
     time = sol.get_val("traj.phase0.timeseries.time")
     iters = np.floor(np.linspace(0, len(time), len(time)))
@@ -153,8 +155,8 @@ if __name__ == '__main__':
     T_z = sol.get_val("traj.phase0.timeseries.T_z")
     Gamma = sol.get_val("traj.phase0.timeseries.Gamma")
     mass = sol.get_val("traj.phase0.timeseries.m")
-    obj4 = sol.get_val("traj.phase0.rhs_all.obj4")
+    obj4 = sol.get_val("traj.phase0.timeseries.obj4")
 
-    # with open('prob4_nparrays.pkl', 'wb') as db_file:
-    #     pickle.dump([time, iters, x, y, z, v_x, v_y, v_z,
-    #                  T_x, T_y, T_z, Gamma, mass, obj4], file=db_file)
+    with open('prob4_nparrays.pkl', 'wb') as db_file:
+        pickle.dump([time, iters, x, y, z, v_x, v_y, v_z,
+                     T_x, T_y, T_z, Gamma, mass, obj4], file=db_file)

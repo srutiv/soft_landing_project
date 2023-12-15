@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
     # plot convergence
     plt.figure()
-    plt.plot(iters, obj4, marker='o', linestyle='dashed')
+    plt.plot(time, obj4, marker='o', linestyle='dashed')
     plt.yscale('log')
     plt.xlabel("Iteration number")
     plt.ylabel('obj4 (kg)')

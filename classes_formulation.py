@@ -421,7 +421,7 @@ class constraint20(ExplicitComponent):
         E[0, :] = np.array([0, 1, 0])
         E[1, :] = np.array([0, 0, 1])
        
-        constraint20 = np.linalg.norm(np.dot(E, r) - q[:, np.newaxis], axis=0) - np.linalg.norm(dp3 - q)
+        constraint20 = np.linalg.norm(np.dot(E, r) - q[:, np.newaxis], axis=0) - 1.5#np.linalg.norm(dp3 - q)
 
         # constraint outputs
         outputs["constraint20"] = constraint20
