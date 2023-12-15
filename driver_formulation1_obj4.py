@@ -4,6 +4,7 @@ import dymos as dm
 from openmdao.drivers.scipy_optimizer import ScipyOptimizeDriver
 
 from classes_formulation import LanderODE_obj4
+from classes_formulation import LanderODE_form2
 import matplotlib.pyplot as plt
 import build_pyoptsparse
 import pyoptsparse
@@ -50,12 +51,15 @@ if __name__ == '__main__':
     phase0 = traj.add_phase('phase0',
                             dm.Phase(ode_class=LanderODE_obj4,
                             transcription=dm.Radau(num_segments=20, order=3)))
+    # phase0 = traj.add_phase('phase0',
+    #                         dm.Phase(ode_class=LanderODE_form2,
+    #                         transcription=dm.Radau(num_segments=20, order=3)))
     tx = phase0.options['transcription']
     phase0.set_time_options(fix_initial=True, units='s', duration_bounds=(10, 150)) #maximum duration of simulation?
 
     ivc_x = p.model.add_subsystem('ivc_xind', om.IndepVarComp(), promotes_outputs=['*'])
     ivc_x.add_output('x_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('x_tf_ind', units='m' )
+    p.model.add_design_var('x_tf_ind', units='m', lower=0 )
 
     ivc_y = p.model.add_subsystem('ivc_yind', om.IndepVarComp(), promotes_outputs=['*'])
     ivc_y.add_output('y_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')

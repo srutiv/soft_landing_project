@@ -40,19 +40,19 @@ if __name__ == '__main__':
     # with open('prob3_nparrays.pkl', 'rb') as db_file:
     #     [time, iters, x, y, z, v_x, v_y, v_z,
     #                  T_x, T_y, T_z, Gamma, mass, obj3] = pickle.load(db_file)
-    # with open('prob4_nparrays.pkl', 'rb') as db_file:
-    #     [time, iters, x, y, z, v_x, v_y, v_z,
-    #                  T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
-    with open('form2_nparrays.pkl', 'rb') as db_file:
+    with open('prob4_nparrays.pkl', 'rb') as db_file:
         [time, iters, x, y, z, v_x, v_y, v_z,
-         T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
+                     T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
+    # with open('form2_nparrays.pkl', 'rb') as db_file:
+    #     [time, iters, x, y, z, v_x, v_y, v_z,
+    #      T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
 
     print("tf* = ", time[-1])
     print("Gamma* = ", Gamma[-1])
     print("Tx* = ", ", Ty* = ", ", Tz* = ")
     print("landing position = ", y[-1], ', ', z[-1], ' m')
     #print("landing error (obj3) = ", obj3[-1], ' m')
-    print("Total Impulse (obj4) = ", [-1], 'Newton s')
+    print("Total Impulse (obj4) = ", obj4[-1], 'Newton s')
 
     """ PLOTS """
 
