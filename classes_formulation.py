@@ -83,9 +83,9 @@ class LanderODE_form2(Group):
         self.add_subsystem('comp5a', subsys=constraint5a(num_nodes=nn),
                            promotes_inputs=['v_x', 'v_y', 'v_z', ],
                            promotes_outputs=['constraint5a', ])
-        self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
-                           promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
-                           promotes_outputs=['constraint5b', ])
+        # self.add_subsystem('comp5b', subsys=constraint5b(num_nodes=nn),
+        #                    promotes_inputs=['x', 'y', 'z', 'x_tf_ind', 'y_tf_ind', 'z_tf_ind'],
+        #                    promotes_outputs=['constraint5b', ])
         self.add_subsystem('comp18a', subsys=constraint18a(num_nodes=nn),
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
                            promotes_outputs=['constraint18a', ])

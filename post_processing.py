@@ -40,12 +40,12 @@ if __name__ == '__main__':
     # with open('prob3_nparrays.pkl', 'rb') as db_file:
     #     [time, iters, x, y, z, v_x, v_y, v_z,
     #                  T_x, T_y, T_z, Gamma, mass, obj3] = pickle.load(db_file)
-    with open('prob4_nparrays.pkl', 'rb') as db_file:
-        [time, iters, x, y, z, v_x, v_y, v_z,
-                     T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
-    # with open('form2_nparrays.pkl', 'rb') as db_file:
+    # with open('prob4_nparrays.pkl', 'rb') as db_file:
     #     [time, iters, x, y, z, v_x, v_y, v_z,
-    #      T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
+    #                  T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
+    with open('form2_nparrays.pkl', 'rb') as db_file:
+        [time, iters, x, y, z, v_x, v_y, v_z,
+         T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
 
     print("tf* = ", time[-1])
     print("Gamma* = ", Gamma[-1])
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     # plot Gamma
     plt.figure()
-    plt.plot(time, Gamma, marker='o', linestyle='dashed')
+    plt.plot(time, mass, marker='o', linestyle='dashed')
     plt.xlabel("time (s)")
     plt.ylabel('Gamma (N)')
     #plt.suptitle("Thrust Upper Bound: Gamma")
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     plt.show()
     plt.close()
 
-    # # plot convergence
+    # # plot convergence obj3
     # plt.figure()
     # plt.plot(iters, obj3, marker='o', linestyle='dashed')
     # plt.yscale('log')
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     # plt.show()
     # plt.close()
 
-    # plot convergence
+    # plot convergence obj4
     plt.figure()
     plt.plot(time, obj4, marker='o', linestyle='dashed')
     plt.yscale('log')

@@ -79,13 +79,13 @@ if __name__ == '__main__':
     """ CONSTRAINTS """
     # Add Boundary and Path Constraints
     # for constraining expressions, the derivatives are calculated with complex step not analytic expressions
-    phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
+    #phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
     phase0.add_boundary_constraint('res7b = m - 1700', loc='final', lower=0)
     phase0.add_boundary_constraint("constraint20", loc="final", upper=0) #Modified so upper bound is 0, need to manually set error
 
     ## Add Path constraints
     phase0.add_path_constraint("constraint5a", lower=0)
-    phase0.add_path_constraint("constraint5b", upper=-1e-6)
+    #phase0.add_path_constraint("constraint5b", upper=-1e-6)
     phase0.add_path_constraint("constraint18a", lower=1e-6)
     phase0.add_path_constraint('constraint19', lower=1e-6)  # constraint 19
     #phase0.add_path_constraint("constraint20", upper=-1e-6)
