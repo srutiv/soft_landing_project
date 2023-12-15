@@ -109,6 +109,7 @@ if __name__ == '__main__':
     p.set_val('traj.phase0.controls:T_y', phase0.interp('T_y', [0.5*Tmax, 0.5*Tmax]), units='N')
     p.set_val('traj.phase0.controls:T_z', phase0.interp('T_z', [0.5*Tmax, 0.5*Tmax]), units='N')
     p.set_val('traj.phase0.controls:Gamma', phase0.interp('Gamma', [0.7 * Tmax, 0.7 * Tmax]), units='N') 
+    p.set_val('traj.phase0.states:obj4', phase0.interp('obj4', [0, 10000])) 
 
     print("check1")
     objectives = phase0.get_objectives()

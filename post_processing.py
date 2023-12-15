@@ -52,7 +52,7 @@ if __name__ == '__main__':
     print("Tx* = ", ", Ty* = ", ", Tz* = ")
     print("landing position = ", y[-1], ', ', z[-1], ' m')
     #print("landing error (obj3) = ", obj3[-1], ' m')
-    print("fuel consumption (obj4) = ", obj4[-1], 'kg')
+    print("Total Impulse (obj4) = ", [-1], 'Newton s')
 
     """ PLOTS """
 
