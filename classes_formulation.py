@@ -95,6 +95,9 @@ class LanderODE_form2(Group):
         self.add_subsystem('comp20', subsys=constraint20_form2mod(num_nodes=nn), #modified using obj3 as a constraint
                            promotes_inputs=['x', 'y', 'z'],
                            promotes_outputs=['constraint20', ])
+        self.add_subsystem('tfcompute', subsys=comp_tf(num_nodes=nn), #modified using obj3 as a constraint
+                           promotes_inputs=['x', 'y', 'z'],
+                           promotes_outputs=['x_tf_ind', 'y_tf_ind', 'z_tf_ind' ])
 
 class constraint5a(ExplicitComponent):
     """
@@ -845,3 +848,62 @@ class FlightDynamics1(ExplicitComponent):
         J['v_zdot', 'm'] = pXDOT_pm[5, 0, 0, :]
 
         J['mdot', 'Gamma'] = pmdot_pGamma
+
+class comp_tf(ExplicitComponent):
+    """
+    """
+
+    def initialize(self):
+        self.options.declare('num_nodes', types=int)
+
+    def setup(self):
+        nn = self.options['num_nodes']
+
+        # Equations of Motions
+        self.add_input('x', val=np.ones(nn), desc='x velocity', units='m')
+        self.add_input('y', val=np.ones(nn), desc='y velocity', units='m')
+        self.add_input('z', val=np.ones(nn), desc='z velocity', units='m')
+
+        # Derivatives of the equations of motions
+        self.add_output('x_tf_ind', val=np.ones(nn), desc='Vmax constraint', units='m')
+        self.add_output('y_tf_ind', val=np.ones(nn), desc='Vmax constraint', units='m')
+        self.add_output('z_tf_ind', val=np.ones(nn), desc='Vmax constraint', units='m')
+
+        # # Declare Partials of outputs wrt inputs
+        # partial_range = np.arange(nn, dtype=int)
+        # self.declare_partials('constraint5a', 'v_x', rows=partial_range, cols=partial_range)
+        # self.declare_partials('constraint5a', 'v_y', rows=partial_range, cols=partial_range)
+        # self.declare_partials('constraint5a', 'v_z', rows=partial_range, cols=partial_range)
+
+    def compute(self, inputs, outputs):
+        """
+        dynamics function: lander modeled as a lumped parameter mass with Tc for control
+        """
+        # Unpack inputs
+        x = inputs['x']
+        y = inputs['y']
+        z = inputs['z']
+        
+        nn = self.options['num_nodes']
+
+        # constraint outputs
+        outputs["x_tf_ind"] = x[-1] * np.ones(nn)
+        outputs["y_tf_ind"] = y[-1] * np.ones(nn)
+        outputs["z_tf_ind"] = z[-1] * np.ones(nn)
+
+    # def compute_partials(self, inputs, J):
+    #     # Unpack inputs 
+    #     v_x = inputs['v_x']
+    #     v_y = inputs['v_y']
+    #     v_z = inputs['v_z']
+
+    #     v_norm = np.linalg.norm([v_x, v_y, v_z], axis=0)
+
+    #     # Divide by zero regulation epsilon
+    #     epsilon = 1e-10
+
+    #     # Assign Partials
+    #     # Element wise ???
+    #     J['constraint5a', 'v_x'] = v_x / (v_norm + epsilon)
+    #     J['constraint5a', 'v_y'] = v_y / (v_norm + epsilon)
+    #     J['constraint5a', 'v_z'] = v_z / (v_norm + epsilon)

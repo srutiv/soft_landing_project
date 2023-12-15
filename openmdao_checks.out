@@ -1,4 +1,7 @@
 INFO: checking out_of_order
+WARNING: The following systems are executed out-of-order:
+   In System 'traj.phases.phase0.rhs_all', subsystem 'comp5b' executes out-of-order with respect to its source systems ['tfcompute']
+
 INFO: checking system
 INFO: checking solvers
 INFO: checking dup_inputs
@@ -8,6 +11,9 @@ INFO: checking unserializable_options
 INFO: checking comp_has_no_outputs
 INFO: checking auto_ivc_warnings
 INFO: checking out_of_order
+WARNING: The following systems are executed out-of-order:
+   In System 'traj.phases.phase0.rhs_all', subsystem 'comp5b' executes out-of-order with respect to its source systems ['tfcompute']
+
 INFO: checking system
 INFO: checking solvers
 INFO: checking dup_inputs
@@ -17,6 +23,9 @@ INFO: checking unserializable_options
 INFO: checking comp_has_no_outputs
 INFO: checking auto_ivc_warnings
 INFO: checking out_of_order
+WARNING: The following systems are executed out-of-order:
+   In System 'traj.phases.phase0.rhs_all', subsystem 'comp5b' executes out-of-order with respect to its source systems ['tfcompute']
+
 INFO: checking system
 INFO: checking solvers
 INFO: checking dup_inputs

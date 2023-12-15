@@ -40,12 +40,12 @@ if __name__ == '__main__':
     # with open('prob3_nparrays.pkl', 'rb') as db_file:
     #     [time, iters, x, y, z, v_x, v_y, v_z,
     #                  T_x, T_y, T_z, Gamma, mass, obj3] = pickle.load(db_file)
-    with open('prob4_nparrays.pkl', 'rb') as db_file:
-        [time, iters, x, y, z, v_x, v_y, v_z,
-                     T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
-    # with open('form2_nparrays.pkl', 'rb') as db_file:
+    # with open('prob4_nparrays.pkl', 'rb') as db_file:
     #     [time, iters, x, y, z, v_x, v_y, v_z,
-    #      T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
+    #                  T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
+    with open('form2_nparrays.pkl', 'rb') as db_file:
+        [time, iters, x, y, z, v_x, v_y, v_z,
+         T_x, T_y, T_z, Gamma, mass, obj4] = pickle.load(db_file)
 
     print("tf* = ", time[-1])
     print("Gamma* = ", Gamma[-1])
@@ -53,6 +53,7 @@ if __name__ == '__main__':
     print("landing position = ", y[-1], ', ', z[-1], ' m')
     #print("landing error (obj3) = ", obj3[-1], ' m')
     print("Total Impulse (obj4) = ", obj4[-1], 'Newton s')
+    print("mass consumption = ", mass[1] - mass[-1])
 
     """ PLOTS """
 
@@ -71,8 +72,8 @@ if __name__ == '__main__':
     ax.grid(True)
     ax.set_title('Lander Trajectory')
     plt.legend()
-    plt.show()
-    plt.close()
+    # plt.show()
+    # plt.close()
     check = 1
 
     # plot Gamma
@@ -83,8 +84,19 @@ if __name__ == '__main__':
     #plt.suptitle("Thrust Upper Bound: Gamma")
     plt.title("Thrust Upper Bound: Gamma")
     plt.grid(color='k', linewidth=0.5)
-    plt.show()
-    plt.close()
+    # plt.show()
+    # plt.close()
+    
+     # plot mass
+    plt.figure()
+    plt.plot(time, mass, marker='o', linestyle='dashed')
+    plt.xlabel("time (s)")
+    plt.ylabel('mass (kg)')
+    #plt.suptitle("Thrust Upper Bound: Gamma")
+    plt.title("Mass over time")
+    plt.grid(color='k', linewidth=0.5)
+    # plt.show()
+    # plt.close()
 
     # # plot convergence
     # plt.figure()
@@ -107,5 +119,8 @@ if __name__ == '__main__':
     # plt.suptitle("Convergence of Landing Error")
     plt.title("Convergence of Fuel Consumption")
     plt.grid(color='k', linewidth=0.5)
+    # plt.show()
+    # plt.close()
+    
     plt.show()
     plt.close()
