@@ -35,6 +35,9 @@ class LanderODE_obj4(Group):
         self.add_subsystem('comp20', subsys=constraint20(num_nodes=nn),
                            promotes_inputs=['x', 'y', 'z'],
                            promotes_outputs=['constraint20', ])
+        self.add_subsystem('tfcompute', subsys=comp_tf(num_nodes=nn), #modified using obj3 as a constraint
+                           promotes_inputs=['x', 'y', 'z'],
+                           promotes_outputs=['x_tf_ind', 'y_tf_ind', 'z_tf_ind' ])
 
 
 class LanderODE(Group):
@@ -63,6 +66,9 @@ class LanderODE(Group):
         self.add_subsystem('comp19', subsys=constraint19(num_nodes=nn),
                            promotes_inputs=['T_x', 'T_y', 'T_z', 'Gamma'],
                            promotes_outputs=['constraint19', ])
+        self.add_subsystem('tfcompute', subsys=comp_tf(num_nodes=nn), #modified using obj3 as a constraint
+                           promotes_inputs=['x', 'y', 'z'],
+                           promotes_outputs=['x_tf_ind', 'y_tf_ind', 'z_tf_ind' ])
 
 
 class LanderODE_form2(Group):
@@ -418,7 +424,7 @@ class constraint20(ExplicitComponent):
         r = np.array([x, y, z])
 
         # constants
-        dp3 = np.array([0.9999994, 1.0000002])
+        dp3 = np.array([1e-3, 1e-3])
         q = np.array([0, 0])  # m, target landing site
         E = np.zeros((2, 3))
         E[0, :] = np.array([0, 1, 0])

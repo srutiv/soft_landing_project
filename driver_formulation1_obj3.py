@@ -103,7 +103,7 @@ if __name__ == '__main__':
     #phase0.add_path_constraint('res5a', lower=0, upper=70, ref=70)
     # phase0.add_timeseries_output('q', shape=(1,))
     #phase0.add_boundary_constraint("res5a")
-    phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
+    # phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
     phase0.add_boundary_constraint('res7b = m - 1700', loc='final', lower=0)
     #phase0.add_boundary_constraint("res9a")
     #phase0.add_boundary_constraint('res17a') #evaluated as a state w/ dynamics expression
@@ -145,8 +145,8 @@ if __name__ == '__main__':
     # p.set_val('traj.phase0.states:r', np.array([2400, 450, -330]), units='m') #POSSIBLE TO SET AN IC AS AN ARRAY
     # p.set_val('traj.phase0.states:rdot', np.array([-10, -40, 10]), units='m/s')
     p.set_val('traj.phase0.states:x', phase0.interp('x', [2400, 0]), units='m')
-    p.set_val('traj.phase0.states:y', phase0.interp('y', [450, 0]), units='m')
-    p.set_val('traj.phase0.states:z', phase0.interp('z', [-330, 0]), units='m')
+    p.set_val('traj.phase0.states:y', phase0.interp('y', [450, 1]), units='m')
+    p.set_val('traj.phase0.states:z', phase0.interp('z', [-330, 1]), units='m')
     p.set_val('traj.phase0.states:v_x', phase0.interp('v_x', [-10, 0]), units='m/s')
     p.set_val('traj.phase0.states:v_y', phase0.interp('v_y', [-40, 0]), units='m/s')
     p.set_val('traj.phase0.states:v_z', phase0.interp('v_z', [10, 0]), units='m/s')
@@ -191,6 +191,6 @@ if __name__ == '__main__':
     mass = sol.get_val("traj.phase0.timeseries.m")
     obj3 = sol.get_val("traj.phase0.rhs_all.obj3")
 
-    # with open('prob3_nparrays.pkl', 'wb') as db_file:
-    #     pickle.dump([time, iters, x, y, z, v_x, v_y, v_z,
-    #                  T_x, T_y, T_z, Gamma, mass, obj3], file=db_file)
+    with open('prob3_nparrays.pkl', 'wb') as db_file:
+        pickle.dump([time, iters, x, y, z, v_x, v_y, v_z,
+                     T_x, T_y, T_z, Gamma, mass, obj3], file=db_file)

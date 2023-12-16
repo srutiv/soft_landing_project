@@ -41,17 +41,17 @@ if __name__ == '__main__':
     tx = phase0.options['transcription']
     phase0.set_time_options(fix_initial=True, units='s', duration_bounds=(10, 150)) #maximum duration of simulation?
 
-    ivc_x = p.model.add_subsystem('ivc_xind', om.IndepVarComp(), promotes_outputs=['*'])
-    ivc_x.add_output('x_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('x_tf_ind', units='m', lower=0 )
+    # ivc_x = p.model.add_subsystem('ivc_xind', om.IndepVarComp(), promotes_outputs=['*'])
+    # ivc_x.add_output('x_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
+    # p.model.add_design_var('x_tf_ind', units='m', lower=0 )
 
-    ivc_y = p.model.add_subsystem('ivc_yind', om.IndepVarComp(), promotes_outputs=['*'])
-    ivc_y.add_output('y_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('y_tf_ind', units='m')
+    # ivc_y = p.model.add_subsystem('ivc_yind', om.IndepVarComp(), promotes_outputs=['*'])
+    # ivc_y.add_output('y_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
+    # p.model.add_design_var('y_tf_ind', units='m')
 
-    ivc_z = p.model.add_subsystem('ivc_zind', om.IndepVarComp(), promotes_outputs=['*'])
-    ivc_z.add_output('z_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
-    p.model.add_design_var('z_tf_ind', units='m')
+    # ivc_z = p.model.add_subsystem('ivc_zind', om.IndepVarComp(), promotes_outputs=['*'])
+    # ivc_z.add_output('z_tf_ind', shape=(tx.grid_data.subset_num_nodes['control_input']), units='m')
+    # p.model.add_design_var('z_tf_ind', units='m')
 
     """ ADD STATES """
     phase0.add_state('x', fix_initial=True, fix_final=True, units='m',

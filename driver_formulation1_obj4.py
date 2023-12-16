@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # z = sol.get_val("traj.phase0.timeseries.z")
     # dp3 = np.array([x, y, z]) #final optimal position from prob3
 
-    dp3 = np.array([0.0, 0.9999994, 1.0000002])
+    dp3 = np.array([0.0, 1e-3, 1e-3])
 
     """ BUILD PROBLEM """
     # initialization
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     """ CONSTRAINTS """
     # Add Boundary and Path Constraints
     # for constraining expressions, the derivatives are calculated with complex step not analytic expressions
-    phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
+    # phase0.add_boundary_constraint("constraint5b", loc="final", equals=0)
     phase0.add_boundary_constraint('res7b = m - 1700', loc='final', lower=0)
     phase0.add_boundary_constraint("constraint20", loc="final", upper=0) #check this
 
